@@ -1,0 +1,66 @@
+# Source files
+src/
+*.ts
+*.tsx
+!dist/**/*.d.ts
+
+# Development files
+.vscode/
+.idea/
+*.log
+*.swp
+*.swo
+*~
+
+# Build outputs (except dist)
+dist-demo/
+build/
+node_modules/
+
+# Config files
+vite.config.ts
+vitest.config.ts
+tsconfig.json
+tsconfig.node.json
+postcss.config.cjs
+tailwind.config.js
+components.json
+
+# Development dependencies
+.eslintrc*
+.prettierrc*
+.husky/
+lint-staged.config.js
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (keep README.md and LICENSE)
+docs/
+*.md
+!README.md
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage/
+
+# Demo files
+index.html
+public/
+favicon.ico
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.pem
+
