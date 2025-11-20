@@ -306,7 +306,7 @@ const DemoApp = () => {
           setCurrentPage(page);
           console.log("Page changed to:", page);
         },
-        label: "Page",
+        // label: "Page",
       }}
       
       // Theme configuration

@@ -402,10 +402,16 @@ Pagination configuration object.
 
 ```tsx
 type PaginationConfig = {
-  page: number;                  // Current page number (1-indexed) (required)
-  totalPages: number;            // Total number of pages (required)
-  onChange: (page: number) => void; // Callback when page changes (required)
-  label?: string;                // Optional label text for pagination
+  page: number;                        // Current page number (1-indexed)
+  totalPages: number;                  // Total number of pages
+  onChange: (page: number) => void;    // Callback when page changes
+  label?: string;                      // Optional label text
+  pageSize?: number;                   // Current page size
+  pageSizeOptions?: number[];          // Available page sizes
+  onPageSizeChange?: (size: number) => void; // Callback when size changes
+  totalItems?: number;                 // Total number of records
+  showNumbers?: boolean;               // Toggle numbered buttons
+  isLoading?: boolean;                 // Disable controls + show spinner
 };
 ```
 
@@ -413,14 +419,75 @@ type PaginationConfig = {
 ```tsx
 const pagination: PaginationConfig = {
   page: currentPage,
-  totalPages: 10,
+  totalPages,
   onChange: (page) => {
     setCurrentPage(page);
-    // Fetch data for new page
+    fetchData({ page, size: pageSize });
   },
-  label: "Page",
+  label: "Applications",
+  pageSize,
+  pageSizeOptions: [10, 25, 50],
+  onPageSizeChange: (size) => {
+    setPageSize(size);
+    fetchData({ page: 1, size });
+  },
+  totalItems,
+  isLoading,
 };
 ```
+
+#### Using `useShellPagination`
+
+For most screens, you can register pagination controls via the `useShellPagination`
+hook instead of manually passing `pagination` props to `AppShell`.
+
+```tsx
+import { useEffect, useState } from "react";
+import { useShellPagination } from "@/theme/shell";
+
+export const ApplicationsScreen = () => {
+  const [rows, setRows] = useState([]);
+
+  const {
+    page,
+    pageSize,
+    setTotalItems,
+    setLoading,
+    isLoading,
+  } = useShellPagination({
+    initialPageSize: 20,
+    pageSizeOptions: [10, 20, 50],
+    onPageChange: (nextPage, size) => {
+      fetchApplications(nextPage, size);
+    },
+    onPageSizeChange: (_, size) => {
+      fetchApplications(1, size);
+    },
+  });
+
+  const fetchApplications = async (nextPage = page, size = pageSize) => {
+    setLoading(true);
+    try {
+      const response = await api.getApplications({ page: nextPage, size });
+      setRows(response.items);
+      setTotalItems(response.total);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications(page, pageSize);
+  }, [page, pageSize]);
+
+  return <ApplicationsTable data={rows} loading={isLoading} />;
+};
+```
+
+Key tips:
+- Mounting `useShellPagination` automatically renders the footer controls; unmounting removes them.
+- Call `setTotalItems` when the backend returns the total count so the footer can display the range.
+- Use `setLoading` (or pass the `loading` option) to show the spinner and temporarily disable controls during fetches.
 
 #### ShellThemeOptions
 

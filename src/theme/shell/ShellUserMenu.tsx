@@ -12,10 +12,8 @@ import { useShellConfig } from "./ShellContext";
 import { cn } from "@/lib/utils";
 import {
   LogOut,
-  Palette,
   Settings,
   User as UserIcon,
-  Users,
 } from "lucide-react";
 import { getAvatarColor } from "./avatarColors";
 import { ShellUserMenuItem } from "./types";

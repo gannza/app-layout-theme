@@ -30,49 +30,57 @@ export const ShellTopBar = () => {
         borderColor
       )}
     >
-      <div className="w-full px-3 py-3 sm:px-6 lg:px-8 flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
-        <div className="flex items-center gap-3 w-full md:max-w-2xl">
-          <SidebarTrigger className="h-9 w-9 rounded-full hover:bg-slate-100 hover:text-blue-500 dark:hover:bg-slate-800" />
-          <ShellInstitutionSelector />
-          {shouldShowSearch && (
-            <>
-              <div
-                className={cn(
-                  "hidden md:block flex-1 md:min-w-[240px]",
-                  mobileSearchOpen && "md:block"
-                )}
-              >
-              <ShellSearch />
+      <div className="w-full px-3 py-2 sm:px-6 lg:px-8 md:py-3">
+        {/* Mobile layout */}
+        <div className="flex flex-col gap-2 md:hidden">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="h-9 w-9 rounded-full hover:bg-slate-100 hover:text-blue-500 dark:hover:bg-slate-800" />
+              {shouldShowSearch && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="rounded-full border border-slate-200 dark:border-slate-700"
+                  onClick={() => setMobileSearchOpen((prev) => !prev)}
+                >
+                  {mobileSearchOpen ? (
+                    <X className="h-4 w-4" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
             </div>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="md:hidden rounded-full border border-slate-200 dark:border-slate-700"
-                onClick={() => setMobileSearchOpen((prev) => !prev)}
-              >
-                {mobileSearchOpen ? (
-                  <X className="h-4 w-4" />
-                ) : (
-                  <Search className="h-4 w-4" />
-                )}
-              </Button>
-            </>
-          )}
+            <div className="flex items-center gap-2">
+              <ShellAppLauncher />
+              <ShellQuickActions />
+              {actions}
+              <ShellThemeToggle />
+              {user && <ShellUserMenu />}
+            </div>
+          </div>
+          {shouldShowSearch && mobileSearchOpen && <ShellSearch />}
         </div>
 
-        {shouldShowSearch && mobileSearchOpen && (
-          <div className="md:hidden">
-            <ShellSearch />
+        {/* Desktop layout */}
+        <div className="hidden md:flex w-full items-center gap-6">
+          <div className="flex items-center gap-3 w-full md:max-w-2xl">
+            <SidebarTrigger className="h-9 w-9 rounded-full hover:bg-slate-100 hover:text-blue-500 dark:hover:bg-slate-800" />
+            <ShellInstitutionSelector />
+            {shouldShowSearch && (
+              <div className="flex-1 md:min-w-[240px]">
+                <ShellSearch />
+              </div>
+            )}
           </div>
-        )}
-
-        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap md:gap-3 ml-auto">
-          <ShellAppLauncher />
-          <ShellQuickActions />
-          {actions}
-          <ShellThemeToggle />
-          {user && <ShellUserMenu />}
+          <div className="flex items-center gap-3 ml-auto">
+            <ShellAppLauncher />
+            <ShellQuickActions />
+            {actions}
+            <ShellThemeToggle />
+            {user && <ShellUserMenu />}
+          </div>
         </div>
       </div>
     </header>

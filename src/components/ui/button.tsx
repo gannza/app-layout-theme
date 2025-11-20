@@ -128,7 +128,7 @@ const Button = React.forwardRef<
     ) : (
       <>
         {iconStart && <span className="flex items-center">{iconStart}</span>}
-        {children && <span className="hidden sm:inline-flex">{children}</span>}
+        {children && <span className="inline-flex">{children}</span>}
         {iconEnd && <span className="flex items-center">{iconEnd}</span>}
       </>
     );

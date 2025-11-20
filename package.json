@@ -6,6 +6,9 @@
     "name": "IPPIS TEAM",
     "email": "respinho2014@gmail.com"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "private": false,
   "main": "./dist/index.js",

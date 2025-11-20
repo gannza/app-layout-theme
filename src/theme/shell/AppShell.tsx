@@ -1,7 +1,11 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AppShellProps, ShellThemeMode } from "./types";
+import {
+  AppShellProps,
+  ShellPaginationConfig,
+  ShellThemeMode,
+} from "./types";
 import { ShellProvider } from "./ShellContext";
 import { ShellSidebar } from "./ShellSidebar";
 import { ShellTopBar } from "./ShellTopBar";
@@ -20,6 +24,13 @@ export const AppShell = ({
   const [themeMode, setThemeMode] = useState<ShellThemeMode>(
     theme?.initialMode ?? "light"
   );
+  const [paginationState, setPaginationState] = useState<
+    ShellPaginationConfig | null
+  >(pagination ?? null);
+
+  useEffect(() => {
+    setPaginationState(pagination ?? null);
+  }, [pagination]);
 
   const toggleTheme = useCallback(
     () => setThemeMode((prev) => (prev === "light" ? "dark" : "light")),
@@ -50,11 +61,21 @@ export const AppShell = ({
       footer,
       footerContent,
       showFooter,
+      pagination: paginationState ?? undefined,
+      setPagination: setPaginationState,
       themeMode,
       setThemeMode,
       toggleTheme,
     }),
-    [config, footer, footerContent, showFooter, themeMode, toggleTheme]
+    [
+      config,
+      footer,
+      footerContent,
+      showFooter,
+      paginationState,
+      themeMode,
+      toggleTheme,
+    ]
   );
 
   return (
@@ -77,11 +98,18 @@ export const AppShell = ({
                 <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-6 lg:px-10 w-full">
                   {children}
                 </div>
-                {pagination && (
+                {paginationState && (
                   <ShellPaginationFooter
-                    page={pagination.page}
-                    totalPages={pagination.totalPages}
-                    onChange={pagination.onChange}
+                    page={paginationState.page}
+                    totalPages={paginationState.totalPages}
+                    onChange={paginationState.onChange}
+                    pageSize={paginationState.pageSize}
+                    pageSizeOptions={paginationState.pageSizeOptions}
+                    onPageSizeChange={paginationState.onPageSizeChange}
+                    totalItems={paginationState.totalItems}
+                    label={paginationState.label}
+                    showNumbers={paginationState.showNumbers}
+                    isLoading={paginationState.isLoading}
                   />
                 )}
               </div>

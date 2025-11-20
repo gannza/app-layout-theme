@@ -16,8 +16,7 @@ import { useShellConfig } from "./ShellContext";
 import { ShellLinkComponentProps, ShellMenuItem } from "./types";
 import { useMemo, useState, useEffect, ComponentType } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarColor } from "./avatarColors";
+import { ShellInstitutionSelector } from "./ShellInstitutionSelector";
 
 const DefaultLink = ({
   to,
@@ -69,11 +68,9 @@ export const ShellSidebar = () => {
     sidebarHeader,
     linkComponent,
     onMenuSelect,
-    user,
     themeMode,
   } = useShellConfig();
-  const userAvatarColors = user ? getAvatarColor(user.name) : null;
-  const { state, setOpenMobile } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
   const LinkComponent = linkComponent ?? DefaultLink;
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
@@ -90,8 +87,6 @@ export const ShellSidebar = () => {
     return openMap[id];
   };
 
-  const borderClass =
-    themeMode === "dark" ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white";
   const footerBorder =
     themeMode === "dark" ? "border-slate-800" : "border-slate-200";
 
@@ -142,6 +137,11 @@ export const ShellSidebar = () => {
               )}
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {isMobile && (
+            <SidebarMenuItem className="pt-2">
+              <ShellInstitutionSelector forceShow block />
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarHeader>
 
@@ -172,46 +172,16 @@ export const ShellSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter
-        className={cn(
-          "space-y-3 border-t pt-3 bg-white dark:bg-slate-900",
-          footerBorder
-        )}
-      >
-        {user && state === "expanded" && userAvatarColors && (
-          <div
-            className={cn(
-              "flex items-center gap-3 rounded-2xl px-3 py-2 shadow-sm border border-blue-500/40",
-              themeMode === "dark" ? "bg-slate-900" : "bg-white"
-            )}
-          >
-            <Avatar className="h-9 w-9 border border-blue-500/40">
-              {user.avatarUrl && (
-                <AvatarImage src={user.avatarUrl} alt={user.name} />
-              )}
-              <AvatarFallback
-                className={cn(
-                  "text-sm font-semibold flex items-center justify-center w-full h-full rounded-full",
-                  userAvatarColors.bg,
-                  userAvatarColors.text
-                )}
-              >
-                {user.name.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-semibold truncate">{user.name}</span>
-              {user.email && (
-                <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                  {user.email}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {sidebarFooter}
-      </SidebarFooter>
+      {isMobile && (
+        <SidebarFooter
+          className={cn(
+            "space-y-0 border-t pt-0 bg-white dark:bg-slate-900",
+            footerBorder
+          )}
+        >
+          {sidebarFooter}
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 };

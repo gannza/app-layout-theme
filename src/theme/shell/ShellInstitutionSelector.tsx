@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useShellConfig } from "./ShellContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,14 +14,19 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Building2, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ShellInstitution } from "./types";
 
 const getInitials = (value?: string) =>
   value ? value.slice(0, 4).toUpperCase() : "—";
 
-export const ShellInstitutionSelector = () => {
+type ShellInstitutionSelectorProps = {
+  forceShow?: boolean;
+  block?: boolean;
+};
+
+export const ShellInstitutionSelector = ({ forceShow = false, block = false  }: ShellInstitutionSelectorProps = {}) => {
   const {
     institutions,
     selectedInstitutionId,
@@ -39,11 +44,12 @@ export const ShellInstitutionSelector = () => {
     setInternalId(selectedInstitutionId);
   }, [selectedInstitutionId]);
 
-  if (!showInstitutionSelector || !institutions?.length) return null;
+  // if ((!forceShow && !showInstitutionSelector) || !institutions?.length)
+  //   return null;
 
-  const resolvedId = internalId ?? institutions[0]?.id;
+  const resolvedId = internalId ?? institutions?.[0]?.id;
   const selected =
-    institutions.find((inst) => inst.id === resolvedId) ?? institutions[0];
+    institutions?.find((inst) => inst.id === resolvedId) ?? institutions?.[0];
 
   const handleSelect = (institution: ShellInstitution) => {
     setInternalId(institution.id);
@@ -55,6 +61,7 @@ export const ShellInstitutionSelector = () => {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          block={block}
           type="button"
           variant="ghost"
           size="lg"
@@ -62,11 +69,8 @@ export const ShellInstitutionSelector = () => {
           className="h-9  dark:border-slate-700 hover:bg-slate-100 hover:text-blue-500 px-2 pr-3 flex items-center gap-2 text-sm"
         >
           <span className="inline-flex truncate max-w-[200px]">
-            {selected?.acronym || institutionPlaceholder}
+            {block ? selected?.name : (selected?.acronym || institutionPlaceholder)}
           </span>
-          {/* <span className="md:hidden font-semibold">
-            {selected?.acronym || "—"}
-          </span> */}
           <ChevronDown className="h-4 w-4 text-slate-400" />
         </Button>
       </PopoverTrigger>
@@ -76,7 +80,7 @@ export const ShellInstitutionSelector = () => {
           <CommandList>
             <CommandEmpty>No institution found.</CommandEmpty>
             <CommandGroup>
-              {institutions.map((institution) => (
+              {institutions?.map((institution) => (
                 <CommandItem
                   key={institution.id}
                   value={institution.name}

@@ -65,7 +65,7 @@ export const ShellSearch = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center gap-2 rounded-full bg-white dark:bg-slate-800 px-4 py-2 shadow border border-slate-200 dark:border-slate-700 w-full focus-within:ring-2 focus-within:ring-blue-500"
+      className="flex items-center gap-1 rounded-full bg-white dark:bg-slate-800 px-2.5 py-0.5 shadow border border-slate-200 dark:border-slate-700 w-full focus-within:ring-2 focus-within:ring-blue-500"
     >
       <Search className="h-4 w-4 text-slate-500 dark:text-slate-500" />
       <Input

@@ -8,5 +8,6 @@ export * from "./ShellThemeToggle";
 export * from "./ShellQuickActions";
 export * from "./ShellUserMenu";
 export * from "./ShellInstitutionSelector";
+export * from "./useShellPagination";
 export * from "./types";
 

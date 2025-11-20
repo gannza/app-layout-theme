@@ -89,6 +89,19 @@ export type ShellThemeOptions = {
   onModeChange?: (mode: ShellThemeMode) => void;
 };
 
+export type ShellPaginationConfig = {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+  label?: string;
+  pageSize?: number;
+  pageSizeOptions?: number[];
+  onPageSizeChange?: (pageSize: number) => void;
+  totalItems?: number;
+  showNumbers?: boolean;
+  isLoading?: boolean;
+};
+
 export interface AppShellProps {
   showSearch?: boolean;
   title?: string;
@@ -110,12 +123,7 @@ export interface AppShellProps {
   onInstitutionChange?: (institutionId: string) => void;
   institutionPlaceholder?: string;
   showInstitutionSelector?: boolean;
-  pagination?: {
-    page: number;
-    totalPages: number;
-    onChange: (page: number) => void;
-    label?: string;
-  };
+  pagination?: ShellPaginationConfig;
   theme?: ShellThemeOptions;
   children: ReactNode;
   className?: string;

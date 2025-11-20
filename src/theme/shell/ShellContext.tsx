@@ -8,6 +8,7 @@ import {
   AppShellProps,
   ShellLinkComponentProps,
   ShellMenuItem,
+  ShellPaginationConfig,
   ShellSearchConfig,
   ShellThemeMode,
   ShellUser,
@@ -21,6 +22,7 @@ export type ShellContextValue = Omit<AppShellProps, "children"> & {
   themeMode: ShellThemeMode;
   setThemeMode: (mode: ShellThemeMode) => void;
   toggleTheme: () => void;
+  setPagination?: (pagination: ShellPaginationConfig | null) => void;
 };
 
 const ShellContext = createContext<ShellContextValue | null>(null);
