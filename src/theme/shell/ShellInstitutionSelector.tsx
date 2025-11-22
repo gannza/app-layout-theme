@@ -26,7 +26,10 @@ type ShellInstitutionSelectorProps = {
   block?: boolean;
 };
 
-export const ShellInstitutionSelector = ({ forceShow = false, block = false  }: ShellInstitutionSelectorProps = {}) => {
+export const ShellInstitutionSelector = ({
+  forceShow = false,
+  block = false,
+}: ShellInstitutionSelectorProps = {}) => {
   const {
     institutions,
     selectedInstitutionId,
@@ -44,8 +47,10 @@ export const ShellInstitutionSelector = ({ forceShow = false, block = false  }: 
     setInternalId(selectedInstitutionId);
   }, [selectedInstitutionId]);
 
-  // if ((!forceShow && !showInstitutionSelector) || !institutions?.length)
-  //   return null;
+  const shouldRender =
+    (forceShow || showInstitutionSelector) && !!institutions?.length;
+
+  if (!shouldRender) return null;
 
   const resolvedId = internalId ?? institutions?.[0]?.id;
   const selected =

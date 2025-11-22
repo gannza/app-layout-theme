@@ -1,140 +1,92 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
     --header-h: 56px;
     --content-header-h: 48px;
-      --content-footer-h: 56px;
+    --content-footer-h: 56px;
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
-      --primary: 226.6667 66.0550% 42.7451%;
-      --primary-foreground: 0 0% 100%;
-      --secondary: 224.0816 100% 90.3922%;
-      --secondary-foreground: 0 0% 0%;
-      --muted: 225.0000 88.8889% 96.4706%;
-      --muted-foreground: 220 8.9362% 46.0784%;
-      --accent: 225.1327 100% 77.8431%;
-      --accent-foreground: 0 0% 100%;
-      --destructive: 0 84.2365% 60.1961%;
-      --destructive-foreground: 0 0% 100%;
-      --border: 220 13.0435% 90.9804%;
-      --input: 0 0% 100%;
+    --primary: 226.6667 66.055% 42.7451%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 224.0816 100% 90.3922%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 225 88.8889% 96.4706%;
+    --muted-foreground: 220 8.9362% 46.0784%;
+    --accent: 225.1327 100% 77.8431%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2365% 60.1961%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13.0435% 90.9804%;
+    --input: 0 0% 100%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 98%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
-    
-    --ring: 226.6667 66.0550% 42.7451%;
 
-    --chart-1: 226.6667 66.0550% 42.7451%;
-      --chart-2: 225.1327 100% 77.8431%;
-      --chart-3: 224.0816 100% 90.3922%;
-      --chart-4: 225.0000 88.8889% 96.4706%;
-      --chart-5: 220 8.9362% 46.0784%;
-      /* 
-        --sidebar: 225.0000 88.8889% 96.4706%;
-          --sidebar-foreground: 0 0% 0%;
-          --sidebar-primary: 226.6667 66.0550% 42.7451%;
-          --sidebar-primary-foreground: 0 0% 100%;
-          --sidebar-accent: 224.0816 100% 90.3922%;
-          --sidebar-accent-foreground: 0 0% 0%;
-          --sidebar-border: 225.1327 100% 77.8431%;
-          --sidebar-ring: 226.6667 66.0550% 42.7451%; */
-
-    --font-sans: sans-serif;
-      --font-serif: serif;
-      --font-mono: monospace;
+    --ring: 226.6667 66.055% 42.7451%;
 
     --radius: 0.5rem;
 
     --shadow-x: 0;
-      --shadow-y: 0.125rem;
-      --shadow-blur: 0.25rem;
-      --shadow-spread: 0;
-      --shadow-opacity: 0.1;
-      --shadow-color: 0 0 0;
-      --shadow-2xs: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.05);
-      --shadow-xs: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.05);
-      --shadow-sm: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.10), 0 1px 2px -1px hsl(0 0 0 / 0.10);
-      --shadow: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.10), 0 1px 2px -1px hsl(0 0 0 / 0.10);
-      --shadow-md: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.10), 0 2px 4px -1px hsl(0 0 0 / 0.10);
-      --shadow-lg: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.10), 0 4px 6px -1px hsl(0 0 0 / 0.10);
-      --shadow-xl: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.10), 0 8px 10px -1px hsl(0 0 0 / 0.10);
-      --shadow-2xl: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.25);
-    --shadow-glow: 0 0 50px hsla(240, 15%, 89%, 0.3);
-    --shadow-card: 0 8px 32px hsla(240, 10%, 3.9%, 0.8);
-
-    --tracking-normal: 0;
-      --spacing: 0.25rem;
-    
-      /* Shadows */
-      --shadow-toolbar: 0 1px 3px hsl(215 15% 85% / 0.3);
-      --shadow-editor: 0 4px 12px hsl(215 15% 85% / 0.15);
-      --shadow-table: 0 1px 2px hsl(215 15% 85% / 0.2);
-  /* Editor Specific Variables */
-    --editor-toolbar: 0 0% 100%;
-    --editor-border: 215 16% 86%;
-    --editor-shadow: 215 15% 85%;
-    --editor-background: 0 0% 100%;
-
-    /* Table Colors */
-    --table-border: 215 16% 86%;
-    --table-header: 215 16% 92%;
-    --table-hover: 211 83% 96%;
-    --table-selected: 211 83% 93%;
-
-    /* Professional Gradients */
-    --gradient-primary: linear-gradient(135deg,
-          hsl(211 83% 53%),
-        hsl(211 83% 60%));
-          --gradient-subtle: linear-gradient(180deg,
-              hsl(0 0% 100%),
-        hsl(215 16% 98%));
-          --gradient-toolbar: linear-gradient(180deg,
-              hsl(0 0% 100%),
-        hsl(215 16% 96%));
-
+    --shadow-y: 0.125rem;
+    --shadow-blur: 0.25rem;
+    --shadow-spread: 0;
+    --shadow-opacity: 0.1;
+    --shadow-color: 0 0 0;
+    --shadow-2xs: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.05);
+    --shadow-xs: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.05);
+    --shadow-sm:
+      0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.1), 0 1px 2px -1px hsl(0 0 0 / 0.1);
+    --shadow:
+      0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.1), 0 1px 2px -1px hsl(0 0 0 / 0.1);
+    --shadow-md:
+      0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.1), 0 2px 4px -1px hsl(0 0 0 / 0.1);
+    --shadow-lg:
+      0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.1), 0 4px 6px -1px hsl(0 0 0 / 0.1);
+    --shadow-xl:
+      0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.1), 0 8px 10px -1px hsl(0 0 0 / 0.1);
+    --shadow-2xl: 0 0.125rem 0.25rem 0 hsl(0 0 0 / 0.25);
 
     /* Transitions */
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.15s ease-in-out;
     /* Font */
-      --font-sans: 'Inter', sans-serif;
-    
-      /* Brand palette */
-      --brand-blue-50: 210 100% 97%;
-      --brand-blue-100: 210 100% 94%;
-      --brand-blue-200: 210 100% 89%;
-      --brand-blue-300: 210 100% 80%;
-      --brand-blue-400: 210 100% 70%;
-      --brand-blue-500: 210 100% 65%;
-      --brand-blue-600: 210 85% 58%;
-      --brand-blue-700: 215 70% 48%;
-      /* Main brand color */
-      --brand-blue-800: 220 65% 42%;
-      --brand-blue-900: 222 70% 36%;
-      --brand-blue-950: 225 70% 24%;
-    
-      /* Rounded sizes */
-      --radius-lg: 0.75rem;
-      --radius-md: calc(0.75rem - 2px);
-      --radius-sm: calc(0.75rem - 4px);
-    
-      /* Old key color tokens (for backward compatibility) */
-      --border: 214.3 31.8% 91.4%;
-      --input: 214.3 31.8% 91.4%;
-      --ring: 215 20.2% 65.1%;
+    --font-sans: "Nunito", sans-serif;
+
+    /* Brand palette */
+    --brand-blue-50: 210 100% 97%;
+    --brand-blue-100: 210 100% 94%;
+    --brand-blue-200: 210 100% 89%;
+    --brand-blue-300: 210 100% 80%;
+    --brand-blue-400: 210 100% 70%;
+    --brand-blue-500: 210 100% 65%;
+    --brand-blue-600: 210 85% 58%;
+    --brand-blue-700: 215 70% 48%;
+    /* Main brand color */
+    --brand-blue-800: 220 65% 42%;
+    --brand-blue-900: 222 70% 36%;
+    --brand-blue-950: 225 70% 24%;
+
+    /* Rounded sizes */
+    --radius-lg: 0.75rem;
+    --radius-md: calc(0.75rem - 2px);
+    --radius-sm: calc(0.75rem - 4px);
+
+    /* Old key color tokens (for backward compatibility) */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 215 20.2% 65.1%;
   }
 
   .dark {
@@ -173,232 +125,17 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Dark Editor Variables */
-    --editor-toolbar: 215 25% 18%;
-    --editor-border: 215 25% 25%;
-    --editor-shadow: 215 25% 12%;
-    --editor-background: 215 25% 16%;
-
-    --table-border: 215 25% 25%;
-    --table-header: 215 25% 20%;
-    --table-hover: 211 83% 25%;
-    --table-selected: 211 83% 20%;
-  }
-body {
-  font-family: var(--font-sans);
-}
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  .smm-glow {
-    box-shadow: var(--shadow-glow);
-    transition: var(--transition-smooth);
-  }
-
-  .smm-glow:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 60px hsla(0, 0%, 98%, 0.4);
   }
 
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    /* font-size: 14px; */
   }
-}
-
-/* Optional custom animation utility */
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 5px #c8e5ff;
-  }
-
-  50% {
-    box-shadow: 0 0 20px #a3d5ff;
-  }
-
-  100% {
-    box-shadow: 0 0 5px #c8e5ff;
-  }
-}
-
-@layer utilities {
-  .animate-glow {
-    animation: glow 3s ease-in-out infinite;
-  }
-}
-/* Custom IPPIS styling */
-@layer components {
-  .ippis-gradient {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
-  }
-
-  .ippis-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-}
-
-/* Subtle animation for form elements */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
 }
 
 @layer base {
   body {
     @apply bg-background text-foreground font-sans;
-
-    /* SunEditor Custom Styles */
-    .sun-editor {
-      border: 1px solid hsl(var(--editor-border)) !important;
-      border-radius: calc(var(--radius) + 2px) !important;
-      box-shadow: var(--shadow-editor) !important;
-      background: hsl(var(--editor-background)) !important;
-    }
-
-    .sun-editor .se-toolbar {
-      background: hsl(var(--editor-toolbar)) !important;
-      border-bottom: 1px solid hsl(var(--editor-border)) !important;
-      padding: 8px 12px !important;
-      border-radius: calc(var(--radius) + 2px) calc(var(--radius) + 2px) 0 0 !important;
-    }
-
-    .sun-editor .se-toolbar button {
-      color: hsl(var(--foreground)) !important;
-      transition: var(--transition-fast) !important;
-      border-radius: var(--radius) !important;
-      margin: 0 1px !important;
-    }
-
-    .sun-editor .se-toolbar button:hover {
-      background: hsl(var(--accent)) !important;
-      color: hsl(var(--accent-foreground)) !important;
-    }
-
-    .sun-editor .se-toolbar button.active,
-    .sun-editor .se-toolbar button:active {
-      background: hsl(var(--primary)) !important;
-      color: hsl(var(--primary-foreground)) !important;
-    }
-
-    .sun-editor .se-wrapper .se-wrapper-inner {
-      background: hsl(var(--editor-background)) !important;
-    }
-
-    .sun-editor .se-wrapper .se-wrapper-wysiwyg {
-      background: hsl(var(--editor-background)) !important;
-      color: hsl(var(--foreground)) !important;
-      padding: 24px !important;
-      line-height: 1.6 !important;
-    }
-
-    /* Enhanced Table Styles */
-    .sun-editor .se-wrapper table {
-      border-collapse: collapse !important;
-      border: 2px solid hsl(var(--table-border)) !important;
-      margin: 16px 0 !important;
-      background: hsl(var(--card)) !important;
-      box-shadow: var(--shadow-table) !important;
-      border-radius: var(--radius) !important;
-      overflow: hidden !important;
-    }
-
-    .sun-editor .se-wrapper table th,
-    .sun-editor .se-wrapper table td {
-      border: 1px solid hsl(var(--table-border)) !important;
-      padding: 12px 16px !important;
-      transition: var(--transition-fast) !important;
-    }
-
-    .sun-editor .se-wrapper table th {
-      background: hsl(var(--table-header)) !important;
-      font-weight: 600 !important;
-      color: hsl(var(--foreground)) !important;
-      text-align: left !important;
-    }
-
-    .sun-editor .se-wrapper table td:hover {
-      background: hsl(var(--table-hover)) !important;
-    }
-
-    .sun-editor .se-wrapper table tr:nth-child(even) td {
-      background: hsl(var(--muted) / 0.3) !important;
-    }
-
-    .sun-editor .se-wrapper table tr:hover td {
-      background: hsl(var(--table-hover)) !important;
-    }
-
-    /* Table Selection Styles */
-    .sun-editor .se-wrapper table .se-table-selected-cell {
-      background: hsl(var(--table-selected)) !important;
-      outline: 2px solid hsl(var(--primary)) !important;
-    }
-
-    /* Dropdown and Modal Styles */
-    .sun-editor .se-dropdown-layer,
-    .sun-editor .se-dialog {
-      background: hsl(var(--popover)) !important;
-      border: 1px solid hsl(var(--border)) !important;
-      border-radius: var(--radius) !important;
-      box-shadow: var(--shadow-editor) !important;
-    }
-
-    .sun-editor .se-dropdown-layer button,
-    .sun-editor .se-dialog button {
-      color: hsl(var(--foreground)) !important;
-      transition: var(--transition-fast) !important;
-    }
-
-    .sun-editor .se-dropdown-layer button:hover,
-    .sun-editor .se-dialog button:hover {
-      background: hsl(var(--accent)) !important;
-    }
-
-    /* Character Counter */
-    .sun-editor .se-char-counter {
-      color: hsl(var(--muted-foreground)) !important;
-      background: hsl(var(--muted)) !important;
-      border-top: 1px solid hsl(var(--border)) !important;
-      padding: 8px 12px !important;
-    }
-
-    /* Focus States */
-    .sun-editor:focus-within {
-      border-color: hsl(var(--ring)) !important;
-      box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
-    }
-  }
-
-  .sun-editor-editable table {
-    border-collapse: collapse;
-    width: 100%;
-      /* make table stretch */
-  }
-
-  .sun-editor-editable table td {
-    min-width: 50px;
-    height: 30px;
-    resize: both;
-      /* allows resizing */
-    overflow: auto;
-    border: 1px solid #ccc;
   }
 }
 
@@ -419,44 +156,7 @@ body {
   @apply bg-muted-foreground/30;
 }
 
-.app-window {
-  @apply shadow-lg overflow-hidden;
-}
-
-.app-titlebar {
-  @apply h-10 flex items-center px-0 select-none;
-  -webkit-app-region: drag;
-}
-
-.app-titlebar-button {
-  @apply h-4 w-4 rounded-full mx-1 flex items-center justify-center;
-  -webkit-app-region: no-drag;
-}
-
-.app-titlebar-button-win {
-  @apply w-10 h-8 flex items-center justify-center;
-  -webkit-app-region: no-drag;
-}
-
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 5px #c8e5ff;
-  }
-
-  50% {
-    box-shadow: 0 0 20px #a3d5ff;
-  }
-
-  100% {
-    box-shadow: 0 0 5px #c8e5ff;
-  }
-}
-
 @layer utilities {
-  .animate-glow {
-    animation: glow 3s ease-in-out infinite;
-  }
-
   .rounded-lg {
     border-radius: var(--radius-lg);
   }
@@ -468,18 +168,10 @@ body {
   .rounded-sm {
     border-radius: var(--radius-sm);
   }
-
-  /* Brand colors */
-  .bg-brand-blue-700 {
-    background-color: hsl(var(--brand-blue-700));
-  }
-
-  .text-brand-blue-700 {
-    color: hsl(var(--brand-blue-700));
-  }
 }
 
 html {
+  /* font-size: 14px; */
   scroll-behavior: smooth;
   scroll-padding-top: 80px;
   /* ensures sections aren't hidden under sticky header */
