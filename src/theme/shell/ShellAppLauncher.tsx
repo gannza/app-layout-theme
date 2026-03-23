@@ -161,7 +161,7 @@ export const ShellAppLauncher = () => {
           {externalApps.length > 0 ? (
             <div className="border-t border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)] bg-white dark:bg-[var(--ds-surface,#1F1F21)]">
               <div className="px-4 py-3 text-xs font-medium text-slate-500 dark:text-[var(--ds-text,#CECFD2)]/80">
-                Recommended for your team
+                Recommended for you
               </div>
               <div className="flex flex-col px-2 pb-2">
                 {externalApps.map((item, idx) => (
