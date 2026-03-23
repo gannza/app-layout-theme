@@ -21,9 +21,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-type InternalApp = AppLauncherItem & { openInNewTab: false };
-type ExternalApp = AppLauncherItem & { openInNewTab: true };
-
 export const ShellAppLauncher = () => {
   const {
     appLauncherItems,
@@ -44,20 +41,18 @@ export const ShellAppLauncher = () => {
     ) ?? institutions?.[0];
 
   const maxVisible = 7;
-  const visibleApps = apps.slice(0, maxVisible);
-  const remainingAppsCount = Math.max(0, apps.length - visibleApps.length);
+  const modules = apps.filter((a) => !(a.openInNewTab ?? false));
+  const visibleModules = modules.slice(0, maxVisible);
+  const remainingAppsCount = Math.max(
+    0,
+    modules.length - visibleModules.length,
+  );
 
   // Main list should open in the same tab (internal_app).
-  const internalApps: InternalApp[] = visibleApps.map((a) => ({
-    ...a,
-    openInNewTab: false,
-  }));
+  const internalApps = visibleModules;
 
   // Recommended list should redirect to another tab (external_app).
-  const externalApps: ExternalApp[] = apps.slice(0, 2).map((a) => ({
-    ...a,
-    openInNewTab: true,
-  }));
+  const externalApps = apps.filter((a) => a.openInNewTab ?? false);
 
   if (!apps.length) return null;
 
@@ -248,7 +243,7 @@ const AppRow = ({
   themeMode,
   onClick,
 }: {
-  item: InternalApp;
+  item: AppLauncherItem;
   themeMode: "light" | "dark";
   onClick?: () => void;
 }) => {
@@ -325,7 +320,7 @@ const RecommendedRow = ({
   showNewBadge,
   onClick,
 }: {
-  item: ExternalApp;
+  item: AppLauncherItem;
   showNewBadge?: boolean;
   onClick?: () => void;
 }) => {

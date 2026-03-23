@@ -58,6 +58,7 @@ export type AppLauncherItem = {
   description?: string;
   href?: string;
   onSelect?: () => void;
+  openInNewTab?: boolean;
 };
 
 export type ShellUser = {
