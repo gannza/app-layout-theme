@@ -128,7 +128,7 @@ export const ShellAppLauncher = () => {
 
           {/* Apps list */}
           {internalApps.length > 0 ? (
-            <div className="px-2 pb-2">
+            <div className="px-2 pb-2 pt-2">
               <div className="flex flex-col">
                 {internalApps.map((item) => (
                   <AppRow
