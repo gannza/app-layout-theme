@@ -1,6 +1,6 @@
 {
   "name": "@ippis/app-layout-theme",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "A modern React component library with AppShell, built with TypeScript, Tailwind CSS, and Radix UI",
   "author": {
     "name": "IPPIS TEAM",

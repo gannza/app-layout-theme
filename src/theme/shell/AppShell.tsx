@@ -52,8 +52,8 @@ export const AppShell = ({
 
   const shellBackground =
     themeMode === "dark"
-      ? "bg-slate-950 text-slate-100"
-      : "bg-[#f5f6fb] text-slate-900";
+      ? "bg-[var(--ds-surface,#1F1F21)] text-[var(--ds-text,#CECFD2)]"
+      : "bg-[#fff] text-[var(--ds-text,#172b4d)]";
 
   const providerValue = useMemo(
     () => ({
@@ -119,7 +119,7 @@ export const AppShell = ({
                   className={cn(
                     "border-t",
                     themeMode === "dark"
-                      ? "border-slate-800 bg-slate-950 text-slate-400"
+                      ? "border-[var(--ds-border,#E3E4F21F)] bg-[var(--ds-surface,#1F1F21)] text-[var(--ds-text,#CECFD2)]"
                       : "border-slate-200 bg-white text-slate-600"
                   )}
                 >
@@ -131,7 +131,7 @@ export const AppShell = ({
                         className={cn(
                           "hover:underline",
                           themeMode === "dark"
-                            ? "text-blue-400"
+                            ? "text-[var(--ds-link,#669DF1)]"
                             : "text-blue-600"
                         )}
                       >
@@ -143,7 +143,7 @@ export const AppShell = ({
                         className={cn(
                           "hover:underline",
                           themeMode === "dark"
-                            ? "text-blue-400"
+                            ? "text-[var(--ds-link,#669DF1)]"
                             : "text-blue-600"
                         )}
                       >

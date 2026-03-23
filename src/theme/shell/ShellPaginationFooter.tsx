@@ -87,15 +87,15 @@ export const ShellPaginationFooter: React.FC<ShellPaginationFooterProps> = ({
       : `Page ${page} of ${totalPages}`);
 
   return (
-    <div className="sticky bottom-0 z-30 border-t w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur">
+    <div className="sticky bottom-0 z-30 border-t w-full bg-white/90 dark:bg-[var(--ds-surface,#1F1F21)] backdrop-blur">
       <div className="w-full py-2 px-3 sm:px-5">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-            <span className="font-semibold text-slate-900 dark:text-white text-sm">
+            <span className="font-semibold text-slate-900 dark:text-[var(--ds-text,#CECFD2)] text-sm">
               {rangeLabel}
             </span>
             {totalItems !== undefined && (
-              <span className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              <span className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-[var(--ds-text,#CECFD2)]">
                 Total {totalItems}
               </span>
             )}
@@ -110,7 +110,7 @@ export const ShellPaginationFooter: React.FC<ShellPaginationFooterProps> = ({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3 w-full lg:w-auto">
             <div
               className={cn(
-                "flex items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1 text-xs shadow-sm bg-white/80 dark:bg-slate-800/60 dark:border-slate-700",
+                "flex items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1 text-xs shadow-sm bg-white/80 dark:bg-[var(--ds-surface,#1F1F21)] dark:border-[var(--ds-border,#E3E4F21F)]",
                 (!canChangePageSize || isLoading) && "opacity-60"
               )}
             >
@@ -143,7 +143,7 @@ export const ShellPaginationFooter: React.FC<ShellPaginationFooterProps> = ({
 
             <div
               className={cn(
-                "rounded-full border border-slate-200 bg-white/80 p-0.5 shadow-sm dark:border-slate-700 dark:bg-slate-800/60",
+                "rounded-full border border-slate-200 bg-white/80 p-0.5 shadow-sm dark:border-[var(--ds-border,#E3E4F21F)] dark:bg-[var(--ds-surface,#1F1F21)]",
                 isLoading && "opacity-60"
               )}
             >

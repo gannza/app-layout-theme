@@ -11,7 +11,7 @@ export const ShellThemeToggle = () => {
       size="icon"
       variant="ghost"
       onClick={toggleTheme}
-      className="rounded-full border border-slate-200 dark:border-slate-700"
+      className="h-8 w-8 rounded-full border border-slate-200 dark:border-[var(--ds-surface-overlay,#2B2C2F)] [&_svg]:size-4"
       title={`Switch to ${themeMode === "light" ? "dark" : "light"} mode`}
       aria-label="Toggle theme"
     >

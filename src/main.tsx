@@ -137,11 +137,11 @@ const DemoApp = () => {
         <div className="p-4 space-y-2">
           <h3 className="font-semibold mb-2">Notifications</h3>
           <div className="space-y-2">
-            <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded">
+            <div className="p-2 bg-slate-100 dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded">
               <p className="text-sm">New message received</p>
               <p className="text-xs text-slate-500">2 minutes ago</p>
             </div>
-            <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded">
+            <div className="p-2 bg-slate-100 dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded">
               <p className="text-sm">Task assigned to you</p>
               <p className="text-xs text-slate-500">1 hour ago</p>
             </div>
@@ -348,7 +348,7 @@ const DemoApp = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="p-6 bg-white dark:bg-slate-800 rounded-lg shadow border border-slate-200 dark:border-slate-700">
+          <div className="p-6 bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg shadow border border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
                 <LayoutDashboard className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -360,7 +360,7 @@ const DemoApp = () => {
             </p>
           </div>
 
-          <div className="p-6 bg-white dark:bg-slate-800 rounded-lg shadow border border-slate-200 dark:border-slate-700">
+          <div className="p-6 bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg shadow border border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
                 <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -372,7 +372,7 @@ const DemoApp = () => {
             </p>
           </div>
 
-          <div className="p-6 bg-white dark:bg-slate-800 rounded-lg shadow border border-slate-200 dark:border-slate-700">
+          <div className="p-6 bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg shadow border border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
                 <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
@@ -385,7 +385,7 @@ const DemoApp = () => {
           </div>
         </div>
 
-        <div className="p-6 bg-white dark:bg-slate-800 rounded-lg shadow border border-slate-200 dark:border-slate-700">
+        <div className="p-6 bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg shadow border border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]">
           <h2 className="text-xl font-semibold mb-4">Features Demonstrated</h2>
           <ul className="space-y-2 text-slate-600 dark:text-slate-400">
             <li className="flex items-center gap-2">
@@ -431,7 +431,7 @@ const DemoApp = () => {
           </ul>
         </div>
 
-        <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="p-6 bg-blue-50 dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg border border-blue-200 dark:border-[var(--ds-border,#E3E4F21F)]">
           <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
             📚 Documentation
           </h3>

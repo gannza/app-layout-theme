@@ -41,7 +41,7 @@ export const ShellQuickActions = () => {
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "h-10 w-10 rounded-full border",
+                  "h-8 w-8 rounded-full border [&_svg]:size-4",
                   themeMode === "dark"
                     ? "border-slate-700 hover:bg-slate-800"
                     : "border-slate-200 hover:bg-slate-100"
@@ -53,7 +53,7 @@ export const ShellQuickActions = () => {
                   action.onSelect?.();
                 }}
               >
-                <action.icon className="h-5 w-5 text-slate-600 dark:text-slate-200" />
+                <action.icon className="h-4 w-4 text-slate-600 dark:text-slate-200" />
               </Button>
             </TooltipTrigger>
             {action.tooltip && (

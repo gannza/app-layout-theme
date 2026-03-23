@@ -6,6 +6,13 @@
 
 @layer base {
   :root {
+    /* ds tokens (used by AppShell background overrides) */
+    --ds-surface: #fff;
+    --ds-surface-overlay: #FFFFFF;
+    --ds-text: #172b4d;
+    --ds-border: #E3E4F21F;
+    --ds-link: #669DF1;
+
     --header-h: 56px;
     --content-header-h: 48px;
     --content-footer-h: 56px;
@@ -90,13 +97,22 @@
   }
 
   .dark {
+    /* ds tokens (dark mode) */
+    --ds-surface: #1F1F21;
+    --ds-surface-overlay: #2B2C2F;
+    --ds-text: #CECFD2;
+    --ds-border: #E3E4F21F;
+    --ds-link: #669DF1;
+
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    /* #2B2C2F */
+    --card: 225 4% 18%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    /* #2B2C2F */
+    --popover: 225 4% 18%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 210 40% 98%;
