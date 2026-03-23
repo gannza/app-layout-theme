@@ -59,6 +59,9 @@ export const ShellUserMenu = () => {
 
   const menuItems: ShellUserMenuItem[] = user.menuItems ?? [];
   const logoutItem = menuItems.find((i) => i.id === "logout");
+  const manageAccountHref = menuItems.find((item) =>
+    ["manage-account", "account", "settings", "profile"].includes(item.id)
+  )?.href;
 
   // Enforce your requested menu: remove Profile + Account settings.
   const extraItems = menuItems.filter(
@@ -135,6 +138,10 @@ export const ShellUserMenu = () => {
               size="sm"
               variant="secondary"
               className="h-8 w-full justify-center bg-slate-100/70 hover:bg-slate-100 dark:bg-[var(--ds-surface,#1F1F21)] dark:hover:bg-[var(--ds-surface,#1F1F21)] text-slate-900 dark:text-[var(--ds-text,#CECFD2)]"
+              onClick={() => {
+                if (!manageAccountHref) return;
+                window.open(manageAccountHref, "_blank", "noopener,noreferrer");
+              }}
             >
               Manage your account
             </Button>
