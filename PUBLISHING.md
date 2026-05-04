@@ -80,7 +80,11 @@ npm publish --dry-run
 ```bash
 npm publish
 ```
-
+```
+git add .
+git commit -m "update shell theme and docs"
+npm version patch
+```
 For scoped packages (required for @ippis scope):
 ```bash
 npm publish --access public
@@ -146,5 +150,21 @@ npm unpublish @ippis/app-layout-theme@1.0.0
 To unpublish all versions:
 ```bash
 npm unpublish @ippis/app-layout-theme --force
+```
+
+
+
+### Publish to the private registry
+
+```bash
+# First time — log in
+npm login --registry http://172.27.8.68:4873/
+
+# Bump the version
+npm version patch   # or minor / major
+
+# Build and publish
+npm run build
+npm publish
 ```
 
