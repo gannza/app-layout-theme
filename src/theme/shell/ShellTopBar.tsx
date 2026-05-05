@@ -24,14 +24,14 @@ export const ShellTopBar = () => {
 
   return (
     <header
-      className={cn("sticky top-0 z-40 w-full border-b shadow-sm", borderColor)}
+      className={cn("sticky top-0 z-40 w-full border-b", borderColor)}
     >
       <div className="w-full px-3 py-2 sm:px-6 lg:px-8 md:py-3">
         {/* Mobile layout */}
         <div className="flex flex-col gap-2 md:hidden">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-8 w-8 rounded-full hover:bg-slate-100 hover:text-blue-500 dark:hover:bg-slate-800" />
+              <SidebarTrigger className="h-8 w-8 rounded-full hover:bg-slate-100 hover:text-[#3725c7] dark:hover:bg-slate-800" />
               {shouldShowSearch && (
                 <Button
                   type="button"
@@ -62,7 +62,7 @@ export const ShellTopBar = () => {
         {/* Desktop layout */}
         <div className="hidden md:flex w-full items-center gap-6">
           <div className="flex items-center gap-3 w-full md:max-w-2xl">
-            <SidebarTrigger className="h-8 w-8 rounded-full hover:bg-slate-100 hover:text-blue-500 dark:hover:bg-slate-800" />
+            <SidebarTrigger className="h-8 w-8 rounded-full hover:bg-slate-100 hover:text-[#3725c7] dark:hover:bg-slate-800" />
             {shouldShowSearch && (
               <div className="flex-1 md:min-w-[240px]">
                 <ShellSearch />

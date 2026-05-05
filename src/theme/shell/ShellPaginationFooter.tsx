@@ -100,7 +100,7 @@ export const ShellPaginationFooter: React.FC<ShellPaginationFooterProps> = ({
               </span>
             )}
             {isLoading && (
-              <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-blue-500">
+              <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-[#3725c7]">
                 <Loader2 className="h-3 w-3 animate-spin" />
                 Loading
               </span>
@@ -110,7 +110,7 @@ export const ShellPaginationFooter: React.FC<ShellPaginationFooterProps> = ({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3 w-full lg:w-auto">
             <div
               className={cn(
-                "flex items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1 text-xs shadow-sm bg-white/80 dark:bg-[var(--ds-surface,#1F1F21)] dark:border-[var(--ds-border,#E3E4F21F)]",
+                "flex items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1 text-xs bg-white/80 dark:bg-[var(--ds-surface,#1F1F21)] dark:border-[var(--ds-border,#E3E4F21F)]",
                 (!canChangePageSize || isLoading) && "opacity-60"
               )}
             >
@@ -143,7 +143,7 @@ export const ShellPaginationFooter: React.FC<ShellPaginationFooterProps> = ({
 
             <div
               className={cn(
-                "rounded-full border border-slate-200 bg-white/80 p-0.5 shadow-sm dark:border-[var(--ds-border,#E3E4F21F)] dark:bg-[var(--ds-surface,#1F1F21)]",
+                "rounded-full border border-slate-200 bg-white/80 p-0.5 dark:border-[var(--ds-border,#E3E4F21F)] dark:bg-[var(--ds-surface,#1F1F21)]",
                 isLoading && "opacity-60"
               )}
             >
@@ -185,8 +185,8 @@ export const ShellPaginationFooter: React.FC<ShellPaginationFooterProps> = ({
                             className={cn(
                               "rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
                               p === page
-                                ? "bg-blue-600 text-white shadow-sm hover:bg-blue-700"
-                                : "hover:bg-blue-500 text-gray-700 dark:hover:bg-slate-700 dark:text-slate-200"
+                                ? "bg-[#3725c7] text-white hover:bg-[#2c1e9f]"
+                                : "hover:bg-[#ebe9f9] hover:text-[#3725c7] text-slate-600 dark:hover:bg-slate-700 dark:text-slate-200"
                             )}
                           >
                             {p}

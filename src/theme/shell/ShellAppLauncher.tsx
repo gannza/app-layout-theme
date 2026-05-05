@@ -67,12 +67,12 @@ export const ShellAppLauncher = () => {
             "h-8 w-8 rounded-full border [&_svg]:size-4",
             themeMode === "dark"
               ? "border-slate-700 dark:hover:bg-slate-800"
-              : "border-slate-200 hover:bg-slate-100 hover:text-blue-500",
+              : "border-slate-200 hover:bg-[#ebe9f9] hover:text-[#3725c7]",
           )}
         >
           <Tooltip delayDuration={150}>
             <TooltipTrigger asChild>
-              <Grip className="h-4 w-4 text-slate-600 hover:text-blue-500 dark:text-slate-200" />
+              <Grip className="h-4 w-4 text-slate-600 hover:text-[#3725c7] dark:text-slate-200" />
             </TooltipTrigger>
             <TooltipContent>Switch to app or module</TooltipContent>
           </Tooltip>
@@ -80,7 +80,7 @@ export const ShellAppLauncher = () => {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-[360px] p-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-[var(--ds-border,#E3E4F21F)] dark:bg-[var(--ds-surface,#1F1F21)]"
+        className="w-[360px] p-0 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-[var(--ds-border,#E3E4F21F)] dark:bg-[var(--ds-surface,#1F1F21)]"
       >
         <div className="flex flex-col max-h-[560px]">
           {/* Institution dropdown */}
@@ -217,7 +217,7 @@ const sharedIconPalette = [
   "#F4F5F7",
 ];
 
-function getIconGradient(key: string, themeMode: "light" | "dark") {
+function getIconGradient(key: string, themeMode: "light" | "dark" | "white") {
   const h = hashString(key);
   const idxA = h % sharedIconPalette.length;
   const idxBBase =
@@ -244,7 +244,7 @@ const AppRow = ({
   onClick,
 }: {
   item: AppLauncherItem;
-  themeMode: "light" | "dark";
+  themeMode: "light" | "dark" | "white";
   onClick?: () => void;
 }) => {
   const icon = item.icon ? (
@@ -339,11 +339,11 @@ const RecommendedRow = ({
     >
       <div className="min-w-0 flex flex-col">
         <div className="flex items-center gap-1 min-w-0">
-          <span className="text-sm font-medium text-[#1d4ed8] dark:text-[#1d4ed8] truncate">
+          <span className="text-sm font-medium text-[#3725c7] dark:text-[var(--ds-link,#669DF1)] truncate">
             {item.label}
           </span>
           {showNewBadge ? (
-            <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:bg-blue-400/10 dark:text-[var(--ds-text,#CECFD2)]">
+            <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#ebe9f9] text-[#3725c7] dark:bg-[#3725c7]/10 dark:text-[var(--ds-text,#CECFD2)]">
               NEW
             </span>
           ) : null}

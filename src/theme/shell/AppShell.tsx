@@ -33,7 +33,10 @@ export const AppShell = ({
   }, [pagination]);
 
   const toggleTheme = useCallback(
-    () => setThemeMode((prev) => (prev === "light" ? "dark" : "light")),
+    () =>
+      setThemeMode((prev) =>
+        prev === "light" ? "dark" : prev === "dark" ? "white" : "light"
+      ),
     []
   );
 
@@ -53,7 +56,9 @@ export const AppShell = ({
   const shellBackground =
     themeMode === "dark"
       ? "bg-[var(--ds-surface,#1F1F21)] text-[var(--ds-text,#CECFD2)]"
-      : "bg-[#fff] text-[var(--ds-text,#172b4d)]";
+      : themeMode === "white"
+      ? "bg-white text-[var(--ds-text,#172b4d)]"
+      : "bg-[#f0f2f5] text-[var(--ds-text,#172b4d)]";
 
   const providerValue = useMemo(
     () => ({
@@ -95,7 +100,7 @@ export const AppShell = ({
               <ShellTopBar />
 
               <div className="flex-1 flex flex-col min-h-0 w-full overflow-hidden">
-                <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-6 lg:px-10 w-full">
+                <div className="flex-1 overflow-y-auto px-3 py-5 sm:px-6 lg:px-8 w-full">
                   {children}
                 </div>
                 {paginationState && (
@@ -119,32 +124,32 @@ export const AppShell = ({
                   className={cn(
                     "border-t",
                     themeMode === "dark"
-                      ? "border-[var(--ds-border,#E3E4F21F)] bg-[var(--ds-surface,#1F1F21)] text-[var(--ds-text,#CECFD2)]"
-                      : "border-slate-200 bg-white text-slate-600"
+                      ? "border-[var(--ds-border,#E3E4F21F)] bg-[var(--ds-surface,#1F1F21)] text-[var(--ds-text,#CECFD2)]/60"
+                      : "border-slate-200 bg-white text-slate-400"
                   )}
                 >
                   {footerContent ?? (
-                    <footer className="text-sm text-center py-3">
-                      © 2025 Government of Rwanda – IPPIS |{" "}
+                    <footer className="text-xs text-center py-2.5 tracking-wide">
+                      © 2025 Government of Rwanda – IPPIS &nbsp;·&nbsp;{" "}
                       <a
                         href="#"
                         className={cn(
                           "hover:underline",
                           themeMode === "dark"
                             ? "text-[var(--ds-link,#669DF1)]"
-                            : "text-blue-600"
+                            : "text-[#3725c7]"
                         )}
                       >
                         Privacy
                       </a>{" "}
-                      |{" "}
+                      &nbsp;·&nbsp;{" "}
                       <a
                         href="#"
                         className={cn(
                           "hover:underline",
                           themeMode === "dark"
                             ? "text-[var(--ds-link,#669DF1)]"
-                            : "text-blue-600"
+                            : "text-[#3725c7]"
                         )}
                       >
                         Terms

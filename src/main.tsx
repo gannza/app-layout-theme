@@ -79,12 +79,12 @@ interface SectionProps {
 const Section = ({ id, icon: Icon, title, description, children }: SectionProps) => (
   <section
     id={id}
-    className="scroll-mt-20 rounded-2xl border border-border bg-card shadow-card overflow-hidden"
+    className="scroll-mt-20 rounded-xl border border-border bg-card overflow-hidden"
   >
     {/* Section header */}
-    <div className="flex items-start gap-4 px-6 py-5 border-b border-border bg-muted/30">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
+    <div className="flex items-start gap-4 px-6 py-4 border-b border-border bg-muted/20">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="h-4.5 w-4.5" />
       </span>
       <div>
         <h2 className="text-ds-base font-semibold text-foreground">{title}</h2>
@@ -450,6 +450,7 @@ const BadgesSection = () => (
 const FormsSection = () => {
   const [checked, setChecked] = useState<boolean | "indeterminate">(false);
   const [radio, setRadio] = useState("a");
+  const [radioColor, setRadioColor] = useState("primary");
   return (
     <Section id="forms" icon={Type} title="Form Elements" description="Input, Textarea, Checkbox, and Radio with consistent sizing, states, and color variants.">
       <DemoBlock label="Input — sizes & states" code={`<Input placeholder="Default size" />
@@ -502,12 +503,13 @@ const FormsSection = () => {
         </div>
       </DemoBlock>
 
-      {/* <DemoBlock label="Radio Group — sizes & color schemes" code={`<RadioGroup value={radio} onValueChange={setRadio}>
+      <DemoBlock label="Radio Group — sizes & color schemes" code={`<RadioGroup value={radio} onValueChange={setRadio} className="flex gap-4">
   <RadioGroupItem value="a" label="Option A" />
   <RadioGroupItem value="b" label="Option B" />
+  <RadioGroupItem value="c" label="Option C" />
 </RadioGroup>`}>
         <div className="space-y-4">
-          <Row label="Default (horizontal layout)">
+          <Row label="Default">
             <RadioGroup value={radio} onValueChange={setRadio} className="flex gap-4">
               <RadioGroupItem value="a" label="Option A" />
               <RadioGroupItem value="b" label="Option B" />
@@ -515,18 +517,21 @@ const FormsSection = () => {
             </RadioGroup>
           </Row>
           <Row label="Color schemes">
-            {(["primary","success","danger","warning","info"] as const).map(c => (
-              <RadioGroupItem key={c} value={c} colorScheme={c} label={c} checked={radio===c}
-                onClick={() => setRadio(c)} />
-            ))}
+            <RadioGroup value={radioColor} onValueChange={setRadioColor} className="flex flex-wrap gap-4">
+              {(["primary","success","danger","warning","info"] as const).map(c => (
+                <RadioGroupItem key={c} value={c} colorScheme={c} label={c} />
+              ))}
+            </RadioGroup>
           </Row>
           <Row label="Sizes">
-            {(["sm","default","lg","xl"] as const).map(s => (
-              <RadioGroupItem key={s} value={s} size={s} label={`Size ${s}`} checked={false} />
-            ))}
+            <RadioGroup value="" onValueChange={() => {}} className="flex flex-wrap gap-4">
+              {(["sm","default","lg","xl"] as const).map(s => (
+                <RadioGroupItem key={s} value={s} size={s} label={`Size ${s}`} />
+              ))}
+            </RadioGroup>
           </Row>
         </div>
-      </DemoBlock> */}
+      </DemoBlock>
 
       <PropsTable rows={[
         { prop: "Input.size", type: "string", default: '"default"', desc: "sm | default | lg" },
@@ -999,21 +1004,106 @@ const menus: ShellMenuItem[] = [
    DEMO APPLICATION
    ============================================================ */
 const DemoApp = () => {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark" | "white">("light");
+  const [selectedInstitution, setSelectedInstitution] = useState("1");
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const institutions = [
+    { id: "1", name: "Ministry of Public Service and Labour", acronym: "MIFOTRA" },
+    { id: "2", name: "Ministry of Finance and Economic Planning", acronym: "MINECOFIN" },
+    { id: "3", name: "Rwanda Social Security Board", acronym: "RSSB" },
+  ];
+
+  const quickActions = [
+    {
+      id: "notifications",
+      icon: Bell,
+      label: "Notifications",
+      tooltip: "View notifications",
+      panel: (
+        <div className="p-4 space-y-2">
+          <h3 className="font-semibold text-ds-sm mb-3">Notifications</h3>
+          <div className="space-y-2">
+            {[
+              { text: "New message received", time: "2 minutes ago" },
+              { text: "Task assigned to you", time: "1 hour ago" },
+              { text: "Report generated", time: "3 hours ago" },
+            ].map(({ text, time }) => (
+              <div key={text} className="p-2 rounded-lg bg-muted/50 border border-border">
+                <p className="text-ds-sm">{text}</p>
+                <p className="text-ds-xs text-muted-foreground mt-0.5">{time}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "help",
+      icon: HelpCircle,
+      label: "Help",
+      tooltip: "Get help and support",
+      panel: (
+        <div className="p-4">
+          <h3 className="font-semibold text-ds-sm mb-2">Help & Support</h3>
+          <p className="text-ds-sm text-muted-foreground mb-4">
+            Need assistance? Contact our support team or check the documentation.
+          </p>
+          <Button variant="outline-primary" size="sm" block>Contact Support</Button>
+        </div>
+      ),
+      variant: "primary" as const,
+    },
+  ];
+
+  const appLauncherItems = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "#" },
+    { id: "analytics", label: "Analytics", icon: BarChart, description: "View analytics", href: "#" },
+    { id: "documents", label: "Documents", icon: FileText, href: "#" },
+  ];
+
   return (
     <AppShell
       menus={menus}
       title="UI Theme — Component Docs"
+      logo={
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-ds-sm font-bold">
+            UI
+          </span>
+          <span className="font-semibold text-ds-sm">AppLayout</span>
+        </div>
+      }
       user={{
         name: "Developer",
         email: "dev@example.com",
-        menuItems: [{ id: "logout", label: "Sign out", icon: LogOut, onSelect: () => {}, danger: true }],
+        subtitle: "IPPIS Platform",
+        menuItems: [
+          { id: "profile",  label: "Profile",      icon: User,    href: "#" },
+          { id: "settings", label: "Settings",     icon: Settings, href: "#" },
+          { id: "logout",   label: "Sign out",     icon: LogOut,  onSelect: () => {}, danger: true },
+        ],
       }}
+      institutions={institutions}
+      selectedInstitutionId={selectedInstitution}
+      onInstitutionChange={setSelectedInstitution}
+      showInstitutionSelector
+      quickActions={quickActions}
+      appLauncherItems={appLauncherItems}
+      sidebarHeader={
+        <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-ds-sm font-bold shrink-0">
+            UI
+          </span>
+          <div className="min-w-0">
+            <p className="text-ds-sm font-semibold truncate">AppLayout Theme</p>
+            <p className="text-ds-xs text-muted-foreground truncate">Component Docs</p>
+          </div>
+        </div>
+      }
       theme={{ initialMode: theme, onModeChange: setTheme }}
       onMenuSelect={(item) => {
         if (item.to?.startsWith("#") && item.to !== "#") scrollTo(item.to.slice(1));
@@ -1022,8 +1112,8 @@ const DemoApp = () => {
       {/* ── Page header ──────────────────────────────────── */}
       <div id="home" className="mb-8 scroll-mt-20">
         <div className="flex items-center gap-3 mb-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
-            <Palette className="h-6 w-6" />
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
+            <Palette className="h-5 w-5" />
           </span>
           <div>
             <h1 className="text-ds-xxl font-bold text-foreground">Component Library</h1>

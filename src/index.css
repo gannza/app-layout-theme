@@ -1,7 +1,191 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Nunito:wght@300;400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================================
+   PLATFORM ROOT TOKENS (override / extend as needed)
+   These variables are consumed by the AppShell host app and
+   map semantic names onto the institution's own design tokens
+   (--ippis-ui-color-* etc.) when that token sheet is loaded.
+   ============================================================ */
+:root {
+  /* ── System font stacks ──────────────────────────────── */
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+               "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+
+  /* ── Primitive color values ──────────────────────────── */
+  --color-red-500:      oklch(63.7% .237 25.331);
+  --color-orange-400:   oklch(75%   .183 55.934);
+  --color-orange-500:   oklch(70.5% .213 47.604);
+  --color-green-100:    oklch(96.2% .044 156.743);
+  --color-green-500:    oklch(72.3% .219 149.579);
+  --color-gray-100:     oklch(96.7% .003 264.542);
+  --color-neutral-400:  oklch(70.8% 0   0);
+  --color-black:        #000;
+  --color-white:        #fff;
+
+  /* ── Spacing / sizing ────────────────────────────────── */
+  --spacing:        0.25rem;
+  --container-sm:   24rem;
+  --container-lg:   32rem;
+
+  /* ── Type scale (standard Tailwind values) ───────────── */
+  --text-xs:                0.75rem;
+  --text-xs--line-height:   calc(1 / 0.75);
+  --text-sm:                0.875rem;
+  --text-sm--line-height:   calc(1.25 / 0.875);
+  --text-base:              1rem;
+  --text-base--line-height: calc(1.5 / 1);
+  --text-lg:                1.125rem;
+  --text-lg--line-height:   calc(1.75 / 1.125);
+
+  /* ── Font weights ────────────────────────────────────── */
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+
+  /* ── Typography helpers ──────────────────────────────── */
+  --tracking-tight:   -0.025em;
+  --leading-relaxed:  1.625;
+
+  /* ── Radius ──────────────────────────────────────────── */
+  --radius-sm:  0.25rem;
+  --radius-md:  0.375rem;
+  --radius-lg:  0.5rem;
+  --radius-xl:  0.75rem;
+  --radius-2xl: 1rem;
+
+  /* ── Easing ──────────────────────────────────────────── */
+  --ease-out:    cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Transition defaults ─────────────────────────────── */
+  --default-transition-duration:        0.15s;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Default font family aliases ─────────────────────── */
+  --default-font-family:      var(--font-sans);
+  --default-mono-font-family: var(--font-mono);
+
+  /* ── Animation shorthands ────────────────────────────── */
+  --animate-spin:        spin 1s linear infinite;
+  --animate-modal-enter: modalEnter 0.15s ease-out;
+  --animate-modal-exit:  modalExit  0.15s ease-in;
+  --animate-appear-in:   appearIn   0.15s ease-in;
+
+  --ippis-ui-color-background: #fff;
+  --ippis-ui-color-accent: #f1f5f9;
+  --ippis-ui-color-accent-foreground: #0f172a;
+  --ippis-ui-color-primary-50: #ebe9f9;
+  --ippis-ui-color-primary-100: #d7d3f4;
+  --ippis-ui-color-primary-200: #c3beee;
+  --ippis-ui-color-primary-300: #afa8e9;
+  --ippis-ui-color-primary-400: #877cdd;
+  --ippis-ui-color-primary-500: #5f51d2;
+  --ippis-ui-color-primary-600: #3725c7;
+  --ippis-ui-color-primary-700: #2c1e9f;
+  --ippis-ui-color-neutral-50: #f9fafb;
+  --ippis-ui-color-neutral-100: #f2f4f7;
+  --ippis-ui-color-neutral-200: #e4e7ec;
+  --ippis-ui-color-neutral-300: #ced2da;
+  --ippis-ui-color-neutral-400: #97a1af;
+  --ippis-ui-color-neutral-500: #637083;
+  --ippis-ui-color-neutral-600: #141c24;
+  --ippis-ui-color-neutral-700: #10161d;
+  --ippis-ui-color-neutral-800: #e4e7ec;
+  --ippis-ui-color-neutral-900: #ededed;
+  --ippis-ui-color-neutral-1000: #1b1b1b;
+  --ippis-ui-color-neutral-1100: #c1c5ca;
+  --ippis-ui-color-success-50: #e8fcf2;
+  --ippis-ui-color-success-100: #d1f9e5;
+  --ippis-ui-color-success-200: #baf5d8;
+  --ippis-ui-color-success-300: #a3f2cb;
+  --ippis-ui-color-success-400: #76ecb1;
+  --ippis-ui-color-success-500: #48e597;
+  --ippis-ui-color-success-600: #1adf7d;
+  --ippis-ui-color-success-700: #15a65e;
+  --ippis-ui-color-warning-50: #fff6e6;
+  --ippis-ui-color-warning-100: #fec;
+  --ippis-ui-color-warning-200: #ffe5b3;
+  --ippis-ui-color-warning-300: #fd9;
+  --ippis-ui-color-warning-400: #ffcc67;
+  --ippis-ui-color-warning-500: #ffbb34;
+  --ippis-ui-color-warning-600: #ffaa01;
+  --ippis-ui-color-warning-700: #c80;
+  --ippis-ui-color-error-50: #fee7e7;
+  --ippis-ui-color-error-100: #fccfcf;
+  --ippis-ui-color-error-200: #fa9e9e;
+  --ippis-ui-color-error-300: #2970ff;
+  --ippis-ui-color-error-400: #f98686;
+  --ippis-ui-color-error-500: #f64c4c;
+  --ippis-ui-color-error-600: #f20d0d;
+  --ippis-ui-color-error-700: #c20a0a;
+  --ippis-ui-color-info-100: #dce9fc;
+  --ippis-ui-color-info-200: #1a4067;
+  --ippis-ui-color-info-500: #2685ca;
+  --ippis-ui-color-info-600: #10161d;
+  --ippis-ui-color-info-700: #5521b5;
+  --ippis-ui-color-secondary-orange-50: #cceaff;
+  --ippis-ui-color-secondary-orange-100: #ffeccd;
+  --ippis-ui-color-secondary-orange-200: #ffe3b4;
+  --ippis-ui-color-secondary-orange-300: #ffda9b;
+  --ippis-ui-color-secondary-orange-400: #ffc768;
+  --ippis-ui-color-secondary-orange-500: #ffb536;
+  --ippis-ui-color-secondary-orange-600: #ffa204;
+  --ippis-ui-color-secondary-orange-700: #cc8203;
+  --ippis-ui-color-secondary-purple-50: #cceaff;
+  --ippis-ui-color-secondary-purple-100: #dcd7fe;
+  --ippis-ui-color-secondary-purple-200: #ac94fa;
+  --ippis-ui-color-secondary-purple-300: #9061f9;
+  --ippis-ui-color-secondary-purple-400: #7e3af2;
+  --ippis-ui-color-secondary-purple-500: #6c2bd9;
+  --ippis-ui-color-secondary-purple-600: #5521b5;
+  --ippis-ui-color-secondary-purple-700: #4a1d96;
+  --ippis-ui-font-family-base: "DM Sans", sans-serif;
+  --ippis-ui-font-size-base: 16px;
+  --ippis-ui-line-height-base: 1.5;
+  --ippis-ui-spacing-unit: 4px;
+  --ippis-ui-spacing-1: calc(var(--ippis-ui-spacing-unit) * 1);
+  --ippis-ui-spacing-2: calc(var(--ippis-ui-spacing-unit) * 2);
+  --ippis-ui-spacing-3: calc(var(--ippis-ui-spacing-unit) * 3);
+  --ippis-ui-spacing-4: calc(var(--ippis-ui-spacing-unit) * 4);
+  --ippis-ui-spacing-5: calc(var(--ippis-ui-spacing-unit) * 5);
+  --ippis-ui-border-width: 1px;
+  --ippis-ui-border-radius-sm: 5px;
+  --ippis-ui-border-radius-base: 7.045px;
+  --ippis-ui-input-height-sm: 37px;
+  --ippis-ui-input-height-md: 40px;
+  --ippis-ui-input-height-lg: 48px;
+  --ippis-ui-avatar-size-sm: 2rem;
+  --ippis-ui-avatar-size-md: 2.5rem;
+  --ippis-ui-avatar-size-lg: 3.75rem;
+  --ippis-ui-navbar-height: 100px;
+  --ippis-ui-container-max-width-sm: 700px;
+  --ippis-ui-container-max-width-md: 1000px;
+  --ippis-ui-container-max-width-lg: 1200px;
+  --ippis-ui-container-max-width-xl: 1440px;
+  --ippis-ui-shadow-sm: 0px 1px 2px 0px #1018280d;
+  --ippis-ui-shadow-md: 0px 0px 1px 0px #6f7977, 0px 50px 100px 0px #49454f26;
+  --ippis-ui-shadow-lg: 0 10px 15px -3px #0000001a, 0 4px 6px -2px #0000000d;
+  --ippis-ui-focus-shadow: 0px 1px 2px 0px #1018280d, 0px 0px 0px 3px #d7d3f4;
+
+  /* ── Semantic color aliases (resolve to institution tokens
+        when the host app loads its own --ippis-ui-color-* sheet;
+        fall back to our design-system values otherwise) ─── */
+  --color-primary:           var(--ippis-ui-color-primary-600,    hsl(var(--primary)));
+  --color-background:        var(--ippis-ui-color-background,     hsl(var(--background)));
+  --color-neutral:           var(--ippis-ui-color-neutral-100,    hsl(var(--muted)));
+  --color-destructive:       var(--ippis-ui-color-error-600,      hsl(var(--danger)));
+  --color-success:           var(--ippis-ui-color-success-700,    hsl(var(--success)));
+  --color-input:             var(--ippis-ui-color-neutral-200,    hsl(var(--input)));
+  --color-accent:            var(--ippis-ui-color-neutral-100,    hsl(var(--accent)));
+  --color-muted-foreground:  var(--ippis-ui-color-neutral-400,    hsl(var(--muted-foreground)));
+  --color-accent-foreground: var(--ippis-ui-color-accent-foreground, hsl(var(--accent-foreground)));
+  --color-primary-highlight: var(--ippis-ui-color-primary-50,     hsl(var(--primary-muted)));
+}
 
 /* ============================================================
    DESIGN SYSTEM — LIGHT MODE TOKENS
@@ -14,7 +198,7 @@
     --content-footer-h: 56px;
 
     /* ── Typography ──────────────────────────────────────── */
-    --font-sans: "Inter", "Nunito", system-ui, -apple-system, sans-serif;
+    --font-sans: "DM Sans", "Inter", system-ui, -apple-system, sans-serif;
     --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.15s ease-in-out;
@@ -43,103 +227,103 @@
 
     /* ── Base Radix/ShadCN token surface ─────────────────── */
     --background:          0 0% 100%;
-    --foreground:          220 15% 15%;
+    --foreground:          213 30% 11%;          /* neutral-600 #141c24 */
     --card:                0 0% 100%;
-    --card-foreground:     220 15% 15%;
+    --card-foreground:     213 30% 11%;
     --popover:             0 0% 100%;
-    --popover-foreground:  220 15% 15%;
-    --muted:               220 14% 96%;
-    --muted-foreground:    220 9% 46%;
-    --accent:              220 14% 94%;
-    --accent-foreground:   220 15% 15%;
-    --border:              220 13% 91%;
-    --input:               220 13% 91%;
-    --ring:                216 80% 50%;
+    --popover-foreground:  213 30% 11%;
+    --muted:               213 18% 96%;          /* neutral-100 #f2f4f7 */
+    --muted-foreground:    215 13% 64%;          /* neutral-400 #97a1af */
+    --accent:              213 18% 95%;
+    --accent-foreground:   213 30% 11%;
+    --border:              218 17% 91%;          /* neutral-200 #e4e7ec */
+    --input:               218 17% 91%;
+    --ring:                247 69% 46%;          /* primary #3725c7 */
     --radius:              0.5rem;
 
-    /* ── Primary (Google-blue inspired) ─────────────────── */
-    --primary:             216 80% 50%;         /* #1a73e8 */
-    --primary-hover:       216 80% 44%;
-    --primary-active:      216 80% 38%;
-    --primary-muted:       216 80% 96%;
+    /* ── Primary — IPPIS indigo (#3725c7) ───────────────── */
+    --primary:             247 69% 46%;
+    --primary-hover:       247 69% 40%;
+    --primary-active:      247 69% 34%;
+    --primary-muted:       248 57% 95%;          /* primary-50 #ebe9f9 */
     --primary-foreground:  0 0% 100%;
 
-    /* ── Secondary (slate) ───────────────────────────────── */
-    --secondary:           220 14% 94%;
-    --secondary-hover:     220 14% 88%;
-    --secondary-active:    220 14% 82%;
-    --secondary-muted:     220 14% 97%;
-    --secondary-foreground:220 15% 20%;
+    /* ── Secondary (neutral) ────────────────────────────── */
+    --secondary:           213 18% 95%;
+    --secondary-hover:     218 17% 89%;
+    --secondary-active:    218 17% 83%;
+    --secondary-muted:     213 18% 98%;
+    --secondary-foreground:213 30% 11%;
 
-    /* ── Success (green) ─────────────────────────────────── */
-    --success:             142 70% 40%;
-    --success-hover:       142 70% 35%;
-    --success-active:      142 70% 30%;
-    --success-muted:       142 70% 95%;
+    /* ── Success — IPPIS green (#15a65e) ────────────────── */
+    --success:             150 78% 37%;
+    --success-hover:       150 78% 31%;
+    --success-active:      150 78% 26%;
+    --success-muted:       150 77% 95%;          /* success-50 #e8fcf2 */
     --success-foreground:  0 0% 100%;
 
-    /* ── Danger / Destructive (red) ──────────────────────── */
-    --danger:              0 84% 60%;
-    --danger-hover:        0 84% 54%;
-    --danger-active:       0 84% 48%;
-    --danger-muted:        0 84% 96%;
+    /* ── Danger — IPPIS red (#f20d0d) ───────────────────── */
+    --danger:              0 90% 50%;
+    --danger-hover:        0 90% 44%;
+    --danger-active:       0 90% 38%;
+    --danger-muted:        0 92% 95%;            /* error-50 #fee7e7 */
     --danger-foreground:   0 0% 100%;
-    --destructive:         0 84% 60%;
+    --destructive:         0 90% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    /* ── Warning (amber) ─────────────────────────────────── */
-    --warning:             38 92% 50%;
-    --warning-hover:       38 92% 44%;
-    --warning-active:      38 92% 38%;
-    --warning-muted:       38 92% 95%;
+    /* ── Warning — IPPIS amber (#ffaa01) ────────────────── */
+    --warning:             40 100% 50%;
+    --warning-hover:       40 100% 44%;
+    --warning-active:      40 100% 38%;
+    --warning-muted:       38 100% 95%;          /* warning-50 #fff6e6 */
     --warning-foreground:  24 10% 10%;
 
-    /* ── Info (cyan/teal) ────────────────────────────────── */
-    --info:                199 89% 48%;
-    --info-hover:          199 89% 42%;
-    --info-active:         199 89% 36%;
-    --info-muted:          199 89% 95%;
+    /* ── Info — IPPIS blue (#2685ca) ────────────────────── */
+    --info:                205 68% 47%;
+    --info-hover:          205 68% 41%;
+    --info-active:         205 68% 36%;
+    --info-muted:          216 83% 93%;          /* info-100 #dce9fc */
     --info-foreground:     0 0% 100%;
 
     /* ── Light ────────────────────────────────────────────── */
-    --light:               210 20% 98%;
-    --light-hover:         210 20% 93%;
-    --light-active:        210 20% 88%;
-    --light-foreground:    220 15% 20%;
+    --light:               213 18% 98%;
+    --light-hover:         213 18% 93%;
+    --light-active:        218 17% 88%;
+    --light-foreground:    213 30% 11%;
 
     /* ── Dark ─────────────────────────────────────────────── */
-    --dark:                220 15% 15%;
-    --dark-hover:          220 15% 20%;
-    --dark-active:         220 15% 25%;
+    --dark:                213 30% 11%;
+    --dark-hover:          213 30% 16%;
+    --dark-active:         213 30% 21%;
     --dark-foreground:     0 0% 100%;
 
     /* ── Text semantic colors ───────────────────────────── */
-    --text-heading:        220 15% 10%;
-    --text-body:           220 15% 20%;
-    --text-muted:          220 9% 46%;
-    --text-disabled:       220 9% 70%;
-    --text-link:           216 80% 50%;
-    --text-link-hover:     216 80% 40%;
+    --text-heading:        213 30% 8%;
+    --text-body:           213 30% 11%;
+    --text-muted:          215 13% 64%;
+    --text-disabled:       215 10% 75%;
+    --text-link:           247 69% 46%;
+    --text-link-hover:     247 69% 38%;
 
     /* ── Background layers ──────────────────────────────── */
     --bg-base:             0 0% 100%;
-    --bg-surface:          210 20% 99%;
+    --bg-surface:          213 20% 99%;
     --bg-elevated:         0 0% 100%;
     --bg-overlay:          0 0% 100%;
-    --bg-sunken:           220 14% 96%;
+    --bg-sunken:           213 18% 96%;
 
     /* ── DS tokens (AppShell overrides) ─────────────────── */
     --ds-surface:          #ffffff;
     --ds-surface-overlay:  #ffffff;
-    --ds-text:             #172b4d;
-    --ds-border:           #E3E4F21F;
-    --ds-link:             #1a73e8;
+    --ds-text:             #141c24;              /* neutral-600 */
+    --ds-border:           #e4e7ec40;
+    --ds-link:             #3725c7;
 
     /* ── Border colors ──────────────────────────────────── */
-    --border-default:      220 13% 91%;
-    --border-strong:       220 13% 80%;
-    --border-subtle:       220 13% 95%;
-    --border-focus:        216 80% 50%;
+    --border-default:      218 17% 91%;
+    --border-strong:       218 17% 80%;
+    --border-subtle:       218 17% 95%;
+    --border-focus:        247 69% 46%;
 
     /* ── Radius scale ────────────────────────────────────── */
     --radius-xs:   0.125rem;  /* 2px  */
@@ -177,7 +361,7 @@
     --shadow-xl:    0 16px 32px -8px hsl(220 15% 10% / 0.14),
                     0 6px 12px -6px hsl(220 15% 10% / 0.10);
     --shadow-2xl:   0 24px 48px -12px hsl(220 15% 10% / 0.18);
-    --shadow-card:  var(--shadow-sm);
+    --shadow-card:  none;
     --shadow-modal: var(--shadow-xl);
     --shadow-dropdown: var(--shadow-md);
     --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.25);
@@ -194,28 +378,25 @@
     --transition-smooth: all var(--duration-normal) var(--ease-smooth);
     --transition-slow:   all var(--duration-slow) var(--ease-smooth);
 
-    /* ── Brand blue palette ──────────────────────────────── */
-    --brand-blue-50:  210 100% 97%;
-    --brand-blue-100: 210 100% 94%;
-    --brand-blue-200: 210 100% 89%;
-    --brand-blue-300: 210 100% 80%;
-    --brand-blue-400: 210 100% 70%;
-    --brand-blue-500: 210 100% 65%;
-    --brand-blue-600: 210 85% 58%;
-    --brand-blue-700: 215 70% 48%;
-    --brand-blue-800: 216 80% 44%;
-    --brand-blue-900: 218 80% 36%;
-    --brand-blue-950: 222 80% 24%;
+    /* ── Brand primary palette (IPPIS indigo) ───────────── */
+    --brand-50:  248 57% 95%;   /* #ebe9f9 */
+    --brand-100: 248 57% 89%;   /* #d7d3f4 */
+    --brand-200: 248 57% 83%;   /* #c3beee */
+    --brand-300: 248 57% 73%;   /* #afa8e9 */
+    --brand-400: 248 57% 62%;   /* #877cdd */
+    --brand-500: 247 62% 57%;   /* #5f51d2 */
+    --brand-600: 247 69% 46%;   /* #3725c7 */
+    --brand-700: 247 69% 37%;   /* #2c1e9f */
 
     /* ── Sidebar tokens ──────────────────────────────────── */
-    --sidebar:                     220 14% 96%;
-    --sidebar-foreground:          220 15% 20%;
-    --sidebar-primary:             216 80% 50%;
+    --sidebar:                     0 0% 100%;
+    --sidebar-foreground:          213 30% 11%;
+    --sidebar-primary:             247 69% 46%;
     --sidebar-primary-foreground:  0 0% 100%;
-    --sidebar-accent:              220 14% 90%;
-    --sidebar-accent-foreground:   220 15% 15%;
-    --sidebar-border:              220 13% 91%;
-    --sidebar-ring:                216 80% 50%;
+    --sidebar-accent:              248 57% 95%;  /* primary-50 tint */
+    --sidebar-accent-foreground:   247 69% 40%;
+    --sidebar-border:              218 17% 91%;
+    --sidebar-ring:                247 69% 46%;
   }
 
   /* ============================================================
@@ -468,6 +649,38 @@
 @keyframes ds-slide-in-left   { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes ds-slide-in-bottom { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes ds-scale-in        { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+/* ── Button click ripple ──────────────────────────────────── */
+@keyframes btn-press-wave {
+  0%   { opacity: 0.45; transform: scale(0.6);  }
+  65%  { opacity: 0.12; transform: scale(2.0);  }
+  100% { opacity: 0;    transform: scale(2.6);  }
+}
+
+/* White ripple — used on solid colored buttons (primary, success, danger, info, dark) */
+.btn-click {
+  position: relative;
+  overflow: hidden;
+}
+.btn-click::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.6);
+  transform-origin: center;
+}
+.btn-click:active::after {
+  animation: btn-press-wave 280ms cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+/* Dark ripple override — for light-bg buttons (outline, ghost, soft, secondary, light) */
+.btn-click-soft::after {
+  background: rgba(0, 0, 0, 0.07);
+}
 
 html {
   scroll-behavior: smooth;

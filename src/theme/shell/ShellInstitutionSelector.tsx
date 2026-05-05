@@ -71,7 +71,7 @@ export const ShellInstitutionSelector = ({
           variant="ghost"
           size="lg"
           title={selected?.name || institutionPlaceholder}
-          className="h-9 dark:border-[var(--ds-surface-overlay,#2B2C2F)] hover:bg-slate-100 hover:text-blue-500 px-2 pr-3 flex items-center gap-2 text-sm"
+          className="h-9 dark:border-[var(--ds-surface-overlay,#2B2C2F)] hover:bg-[#ebe9f9] hover:text-[#3725c7] px-2 pr-3 flex items-center gap-2 text-sm"
         >
           <span className="inline-flex truncate max-w-[200px]">
             {block ? selected?.name : (selected?.acronym || institutionPlaceholder)}
@@ -91,9 +91,9 @@ export const ShellInstitutionSelector = ({
                   value={institution.name}
                   onSelect={() => handleSelect(institution)}
                   className={cn(
-                    "flex items-center gap-3 hover:bg-slate-100 hover:text-blue-500",
+                    "flex items-center gap-3 hover:bg-[#ebe9f9] hover:text-[#3725c7]",
                     institution.id === resolvedId &&
-                      "bg-slate-100 text-blue-500"
+                      "bg-[#ebe9f9] text-[#3725c7]"
                   )}
                 >
                   <span className="h-9 w-9 rounded-full bg-slate-100 dark:bg-[var(--ds-surface-overlay,#2B2C2F)] text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-center">

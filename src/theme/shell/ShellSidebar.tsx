@@ -1,4 +1,6 @@
+import * as React from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import {
   Sidebar,
   SidebarContent,
@@ -15,46 +17,30 @@ import {
 import { cn } from "@/lib/utils";
 import { useShellConfig } from "./ShellContext";
 import { ShellLinkComponentProps, ShellMenuItem } from "./types";
-import { useMemo, useState, useEffect, ComponentType } from "react";
+import { useMemo, useState, useEffect, useRef, ComponentType } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { ShellInstitutionSelector } from "./ShellInstitutionSelector";
 
-const DefaultLink = ({
-  to,
-  href,
-  className,
-  children,
-  onClick,
-}: ShellLinkComponentProps) => {
+/* ── Default link ────────────────────────────────────────── */
+const DefaultLink = ({ to, href, className, children, onClick }: ShellLinkComponentProps) => {
   if (to) {
     return (
       <NavLink
         to={to}
         className={({ isActive }) => {
           const isSubmenuLink = className?.includes("submenu-link");
-          const topLevelBase =
-            "rounded-md px-2 py-2";
-          const submenuBase =
-            "rounded-none px-2 py-2";
-          const topLevelHover =
-            "hover:bg-[#e9f2fe] hover:text-[#1868db] hover:shadow-[inset_2px_0_0_0_rgba(24,104,219,0.9)] hover:pl-[11px] dark:hover:bg-blue-500/10 dark:hover:text-[var(--ds-link,#669DF1)]";
-          const topLevelActive =
-            "bg-[#e9f2fe] text-[#1868db] shadow-[inset_2px_0_0_0_rgba(24,104,219,0.95)] pl-[11px] dark:bg-blue-500/10 dark:text-[var(--ds-link,#669DF1)] dark:shadow-[inset_2px_0_0_0_rgba(102,157,241,0.95)]";
-          const submenuHover =
-            "hover:bg-transparent hover:text-blue-700 dark:hover:text-[var(--ds-link,#669DF1)]";
-          const submenuActive =
-            "bg-transparent shadow-none text-blue-700 dark:text-[var(--ds-link,#669DF1)]";
-
           return cn(
             "flex items-center gap-3 text-sm font-medium transition-colors w-full",
-            isSubmenuLink ? submenuBase : topLevelBase,
+            isSubmenuLink
+              ? "rounded-none px-2 py-2"
+              : "rounded-md px-2 py-2",
             isActive
               ? isSubmenuLink
-                ? submenuActive
-                : topLevelActive
+                ? "bg-transparent shadow-none text-[#3725c7] dark:text-[var(--ds-link,#669DF1)]"
+                : "bg-[#ebe9f9] text-[#3725c7] shadow-[inset_2px_0_0_0_rgba(55,37,199,0.95)] pl-[11px] dark:bg-blue-500/10 dark:text-[var(--ds-link,#669DF1)] dark:shadow-[inset_2px_0_0_0_rgba(102,157,241,0.95)]"
               : isSubmenuLink
-                ? `text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80 ${submenuHover}`
-                : `text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80 ${topLevelHover}`,
+                ? "text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80 hover:bg-transparent hover:text-[#3725c7] dark:hover:text-[var(--ds-link,#669DF1)]"
+                : "text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80 hover:bg-[#ebe9f9] hover:text-[#3725c7] hover:shadow-[inset_2px_0_0_0_rgba(55,37,199,0.9)] hover:pl-[11px] dark:hover:bg-[#ebe9f9] dark:hover:text-[var(--ds-link,#669DF1)]",
             className
           );
         }}
@@ -71,58 +57,167 @@ const DefaultLink = ({
       className={cn(
         "flex items-center gap-3 text-sm font-medium transition-colors w-full text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80",
         className?.includes("submenu-link")
-          ? "rounded-none px-2 py-2 hover:bg-transparent hover:text-blue-700 dark:hover:text-[var(--ds-link,#669DF1)]"
-          : "rounded-md px-2 py-2 hover:bg-[#e9f2fe] hover:text-[#1868db] hover:shadow-[inset_2px_0_0_0_rgba(24,104,219,0.9)] hover:pl-[11px] dark:hover:bg-blue-500/10 dark:hover:text-[var(--ds-link,#669DF1)]",
+          ? "rounded-none px-2 py-2 hover:bg-transparent hover:text-[#3725c7] dark:hover:text-[var(--ds-link,#669DF1)]"
+          : "rounded-md px-2 py-2 hover:bg-[#ebe9f9] hover:text-[#3725c7] hover:shadow-[inset_2px_0_0_0_rgba(55,37,199,0.9)] hover:pl-[11px] dark:hover:bg-[#ebe9f9] dark:hover:text-[var(--ds-link,#669DF1)]",
         className
       )}
       onClick={onClick}
-      data-collapsible="offcanvas"
-      data-variant="sidebar"
     >
       {children}
     </a>
   );
 };
 
+/* ── Icon container used in collapsed rail ───────────────── */
+const IconPill = ({
+  icon: Icon,
+  active,
+  className,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  active?: boolean;
+  className?: string;
+}) => (
+  <span
+    className={cn(
+      "flex h-9 w-9 items-center justify-center rounded-xl transition-colors duration-150",
+      active
+        ? "bg-[#ebe9f9] text-[#3725c7] dark:bg-blue-500/15 dark:text-[var(--ds-link,#669DF1)]"
+        : "text-slate-500 dark:text-[var(--ds-text,#CECFD2)]/60 group-hover/iconbtn:bg-[#ebe9f9]/70 group-hover/iconbtn:text-[#3725c7] dark:group-hover/iconbtn:bg-blue-500/10 dark:group-hover/iconbtn:text-[var(--ds-link,#669DF1)]",
+      className
+    )}
+  >
+    <Icon className="h-[18px] w-[18px] shrink-0" />
+  </span>
+);
+
+/* ── Hover popover for collapsed items with children ─────── */
+const CollapsedSubmenuPopover = ({
+  item,
+  LinkComponent,
+  onItemSelect,
+  setOpenMobile,
+  location,
+}: {
+  item: ShellMenuItem;
+  LinkComponent: ComponentType<ShellLinkComponentProps>;
+  onItemSelect: (item: ShellMenuItem) => void;
+  setOpenMobile: (v: boolean) => void;
+  location: ReturnType<typeof useLocation>;
+}) => {
+  const [open, setOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const isActiveBranch = isMenuBranchActive(item, location.pathname);
+
+  const show = () => {
+    clearTimeout(closeTimer.current);
+    setOpen(true);
+  };
+  const hide = () => {
+    closeTimer.current = setTimeout(() => setOpen(false), 120);
+  };
+
+  return (
+    <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
+      <PopoverPrimitive.Trigger asChild>
+        <button
+          type="button"
+          onMouseEnter={show}
+          onMouseLeave={hide}
+          className="group/iconbtn flex w-full items-center justify-center py-0.5 focus:outline-none"
+          aria-label={item.label}
+        >
+          {item.icon ? (
+            <IconPill icon={item.icon} active={isActiveBranch} />
+          ) : (
+            <span
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition-colors",
+                isActiveBranch
+                  ? "bg-[#ebe9f9] text-[#3725c7] dark:bg-blue-500/15 dark:text-[var(--ds-link,#669DF1)]"
+                  : "text-slate-400 group-hover/iconbtn:bg-[#ebe9f9]/70 group-hover/iconbtn:text-[#3725c7]"
+              )}
+            >
+              {item.label.slice(0, 2)}
+            </span>
+          )}
+        </button>
+      </PopoverPrimitive.Trigger>
+
+      <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+          side="right"
+          align="start"
+          sideOffset={8}
+          onMouseEnter={show}
+          onMouseLeave={hide}
+          className={cn(
+            "z-50 min-w-[180px] rounded-xl border border-border bg-popover p-1.5 shadow-lg",
+            "data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            "origin-[--radix-popover-content-transform-origin]"
+          )}
+        >
+          {/* Parent label */}
+          <p className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+            {item.label}
+          </p>
+
+          {item.children?.map((child) => {
+            const isActive = !!child.to && child.to === location.pathname;
+            return (
+              <LinkComponent
+                key={child.id}
+                to={child.to}
+                href={child.href}
+                onClick={() => {
+                  setOpen(false);
+                  onItemSelect(child);
+                  setOpenMobile(false);
+                }}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors w-full",
+                  isActive
+                    ? "bg-[#ebe9f9] text-[#3725c7] dark:bg-blue-500/10 dark:text-[var(--ds-link,#669DF1)]"
+                    : "text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80 hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                {child.icon && <child.icon className="h-4 w-4 shrink-0" />}
+                {child.label}
+              </LinkComponent>
+            );
+          })}
+        </PopoverPrimitive.Content>
+      </PopoverPrimitive.Portal>
+    </PopoverPrimitive.Root>
+  );
+};
+
+/* ── Main shell sidebar ──────────────────────────────────── */
 export const ShellSidebar = () => {
-  const {
-    menus,
-    sidebarFooter,
-    sidebarHeader,
-    linkComponent,
-    onMenuSelect,
-    themeMode,
-  } = useShellConfig();
+  const { menus, sidebarFooter, sidebarHeader, linkComponent, onMenuSelect, themeMode } =
+    useShellConfig();
   const { state, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
   const LinkComponent = linkComponent ?? DefaultLink;
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
 
-  const toggleSection = (id: string) => {
+  const toggleSection = (id: string) =>
     setOpenMap((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
 
   const flattenedMenus = useMemo(() => menus, [menus]);
-  const getIsOpen = (id: string, depth: number) => {
-    if (openMap[id] === undefined) {
-      return depth === 0;
-    }
-    return openMap[id];
-  };
+  const getIsOpen = (id: string, depth: number) =>
+    openMap[id] === undefined ? depth === 0 : openMap[id];
 
-  const footerBorder =
-    themeMode === "dark" ? "border-slate-800" : "border-slate-200";
+  const footerBorder = themeMode === "dark" ? "border-slate-800" : "border-slate-200";
 
   useEffect(() => {
     const root = document.documentElement;
     if (themeMode === "dark") {
-      // Approximate ds-surface / ds-text from your Atlassian-like palette.
-      root.style.setProperty("--sidebar", "rgb(31 31 33)"); // #1F1F21
-      root.style.setProperty("--sidebar-foreground", "rgb(206 207 210)"); // #CECFD2
-      root.style.setProperty(
-        "--sidebar-accent",
-        "rgba(102, 157, 241, 0.18)" // ds-link with alpha
-      );
+      root.style.setProperty("--sidebar", "rgb(31 31 33)");
+      root.style.setProperty("--sidebar-foreground", "rgb(206 207 210)");
+      root.style.setProperty("--sidebar-accent", "rgba(102, 157, 241, 0.18)");
       root.style.setProperty("--sidebar-accent-foreground", "rgb(206 207 210)");
     } else {
       root.style.setProperty("--sidebar", "rgb(255 255 255)");
@@ -140,7 +235,7 @@ export const ShellSidebar = () => {
 
   return (
     <Sidebar
-      collapsible="offcanvas"
+      collapsible="icon"
       className={cn(
         "border-r",
         themeMode === "dark"
@@ -148,21 +243,15 @@ export const ShellSidebar = () => {
           : "border-slate-100 bg-white"
       )}
     >
-      <SidebarHeader
-        className={cn("bg-white dark:bg-[var(--ds-surface,#1F1F21)]")}
-      >
+      <SidebarHeader className="bg-white dark:bg-[var(--ds-surface,#1F1F21)]">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              {sidebarHeader ? (
-                sidebarHeader
-              ) : (
-                <span className="font-semibold text-base text-slate-900">
-                  Navigation
-                </span>
+              {sidebarHeader ?? (
+                <span className="font-semibold text-base text-slate-900">Navigation</span>
               )}
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -174,32 +263,42 @@ export const ShellSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent
-        className={cn(
-          "bg-white dark:bg-[var(--ds-surface,#1F1F21)] flex-1 flex flex-col"
-        )}
-      >
+      <SidebarContent className="bg-white dark:bg-[var(--ds-surface,#1F1F21)] flex-1 flex flex-col">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="mt-4 space-y-1">
-              {flattenedMenus.map((item) => (
-                <MenuNode
-                  key={item.id}
-                  item={item}
-                  depth={0}
-                  state={state}
-                  LinkComponent={LinkComponent}
-                  onItemSelect={(menu) => {
-                    menu.onSelect?.();
-                    onMenuSelect?.(menu);
-                  }}
-                  isOpen={getIsOpen(item.id, 0)}
-                  getIsOpen={getIsOpen}
-                  onToggle={toggleSection}
-                  setOpenMobile={setOpenMobile}
-                  location={location}
-                />
-              ))}
+            <SidebarMenu className={cn("space-y-1", state === "collapsed" ? "mt-2 px-1" : "mt-4")}>
+              {flattenedMenus.map((item) =>
+                state === "collapsed" && !isMobile ? (
+                  <CollapsedMenuNode
+                    key={item.id}
+                    item={item}
+                    LinkComponent={LinkComponent}
+                    onItemSelect={(menu) => {
+                      menu.onSelect?.();
+                      onMenuSelect?.(menu);
+                    }}
+                    setOpenMobile={setOpenMobile}
+                    location={location}
+                  />
+                ) : (
+                  <MenuNode
+                    key={item.id}
+                    item={item}
+                    depth={0}
+                    state={state}
+                    LinkComponent={LinkComponent}
+                    onItemSelect={(menu) => {
+                      menu.onSelect?.();
+                      onMenuSelect?.(menu);
+                    }}
+                    isOpen={getIsOpen(item.id, 0)}
+                    getIsOpen={getIsOpen}
+                    onToggle={toggleSection}
+                    setOpenMobile={setOpenMobile}
+                    location={location}
+                  />
+                )
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -219,6 +318,77 @@ export const ShellSidebar = () => {
   );
 };
 
+/* ── Collapsed icon-rail node ────────────────────────────── */
+type CollapsedMenuNodeProps = {
+  item: ShellMenuItem;
+  LinkComponent: ComponentType<ShellLinkComponentProps>;
+  onItemSelect: (item: ShellMenuItem) => void;
+  setOpenMobile: (v: boolean) => void;
+  location: ReturnType<typeof useLocation>;
+};
+
+const CollapsedMenuNode = ({
+  item,
+  LinkComponent,
+  onItemSelect,
+  setOpenMobile,
+  location,
+}: CollapsedMenuNodeProps) => {
+  const hasChildren = !!item.children?.length;
+  const isActive = !!item.to && item.to === location.pathname;
+
+  if (hasChildren) {
+    return (
+      <SidebarMenuItem>
+        <CollapsedSubmenuPopover
+          item={item}
+          LinkComponent={LinkComponent}
+          onItemSelect={onItemSelect}
+          setOpenMobile={setOpenMobile}
+          location={location}
+        />
+      </SidebarMenuItem>
+    );
+  }
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild disabled={item.disabled} tooltip={item.label}>
+        <LinkComponent
+          to={item.to}
+          href={item.href}
+          onClick={(e) => {
+            if (item.to && location.pathname === item.to) {
+              e.preventDefault();
+              setOpenMobile(false);
+              return;
+            }
+            onItemSelect(item);
+            setOpenMobile(false);
+          }}
+          className="group/iconbtn flex w-full items-center justify-center py-0.5"
+        >
+          {item.icon ? (
+            <IconPill icon={item.icon} active={isActive} />
+          ) : (
+            <span
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition-colors",
+                isActive
+                  ? "bg-[#ebe9f9] text-[#3725c7] dark:bg-blue-500/15 dark:text-[var(--ds-link,#669DF1)]"
+                  : "text-slate-400 group-hover/iconbtn:bg-[#ebe9f9]/70 group-hover/iconbtn:text-[#3725c7]"
+              )}
+            >
+              {item.label.slice(0, 2)}
+            </span>
+          )}
+        </LinkComponent>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+};
+
+/* ── Expanded tree node ──────────────────────────────────── */
 type MenuNodeProps = {
   item: ShellMenuItem;
   depth: number;
@@ -264,19 +434,13 @@ const MenuNode = ({
             className={cn(
               "justify-between rounded-md",
               isActiveBranch &&
-                "bg-[#e9f2fe] text-[#1868db] shadow-[inset_2px_0_0_0_rgba(24,104,219,0.95)] dark:bg-blue-500/10 dark:text-[var(--ds-link,#669DF1)] dark:shadow-[inset_2px_0_0_0_rgba(102,157,241,0.95)]"
+                "bg-[#ebe9f9] text-[#3725c7] shadow-[inset_2px_0_0_0_rgba(55,37,199,0.95)] dark:bg-blue-500/10 dark:text-[var(--ds-link,#669DF1)] dark:shadow-[inset_2px_0_0_0_rgba(102,157,241,0.95)]"
             )}
           >
             <div className="flex items-center gap-3" style={{ paddingLeft }}>
-              {item.icon &&
-              (state !== "expanded" || depth === 0) ? (
-                <item.icon
-                  className={cn(
-                    "h-4 w-4 shrink-0 text-current",
-                    state === "expanded" ? "opacity-100" : "opacity-70"
-                  )}
-                />
-              ) : null}
+              {item.icon && depth === 0 && (
+                <item.icon className="h-4 w-4 shrink-0 text-current" />
+              )}
               {state === "expanded" && (
                 <>
                   {depth > 0 && (
@@ -295,22 +459,13 @@ const MenuNode = ({
               )}
             </div>
             {isOpen ? (
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4",
-                  "text-[var(--ds-link,#669DF1)]"
-                )}
-              />
+              <ChevronDown className="h-4 w-4 text-[var(--ds-link,#669DF1)]" />
             ) : (
-              <ChevronRight
-                className={cn(
-                  "h-4 w-4",
-                  "text-[var(--ds-text,#CECFD2)]/60"
-                )}
-              />
+              <ChevronRight className="h-4 w-4 text-[var(--ds-text,#CECFD2)]/60" />
             )}
           </SidebarMenuButton>
         </SidebarMenuItem>
+
         {isOpen && item.children?.length ? (
           <SidebarMenuSub
             className={cn(
@@ -345,34 +500,24 @@ const MenuNode = ({
       <SidebarMenuButton
         asChild
         disabled={item.disabled}
-        className="focus-visible:ring-2 focus-visible:ring-blue-500/70 focus-visible:bg-blue-50 focus-visible:text-blue-600 dark:focus-visible:bg-blue-500/10 dark:focus-visible:text-blue-200"
+        className="focus-visible:ring-2 focus-visible:ring-[#3725c7]/60 focus-visible:bg-[#ebe9f9] focus-visible:text-[#3725c7] dark:focus-visible:bg-[#3725c7]/10 dark:focus-visible:text-blue-200"
       >
         <LinkComponent
           to={item.to}
           href={item.href}
-          onClick={(event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-          if (item.to && location.pathname === item.to) {
-            event.preventDefault();
+          onClick={(event) => {
+            if (item.to && location.pathname === item.to) {
+              event.preventDefault();
+              setOpenMobile(false);
+              return;
+            }
+            onItemSelect(item);
             setOpenMobile(false);
-            return;
-          }
-          onItemSelect(item);
-          setOpenMobile(false);
           }}
-          className={cn(
-            state === "expanded" ? "" : "justify-center",
-            depth > 0 && "submenu-link"
-          )}
+          className={cn(depth > 0 && "submenu-link")}
         >
-          {item.icon && (
-            (state !== "expanded" || depth === 0) ? (
-              <item.icon
-                className={cn(
-                  "h-4 w-4 shrink-0 text-current",
-                  state === "expanded" ? "opacity-100" : "opacity-70"
-                )}
-              />
-            ) : null
+          {item.icon && depth === 0 && (
+            <item.icon className="h-4 w-4 shrink-0 text-current" />
           )}
           {state === "expanded" && (
             <>
@@ -391,7 +536,7 @@ const MenuNode = ({
             </>
           )}
           {state === "expanded" && item.badge && (
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+            <span className="text-xs font-semibold text-[#3725c7] dark:text-[var(--ds-link,#669DF1)]">
               {item.badge}
             </span>
           )}
@@ -400,4 +545,3 @@ const MenuNode = ({
     </SidebarMenuItem>
   );
 };
-

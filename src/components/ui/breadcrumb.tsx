@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
-
+import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const Breadcrumb = React.forwardRef<
@@ -12,19 +12,40 @@ const Breadcrumb = React.forwardRef<
 >(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />)
 Breadcrumb.displayName = "Breadcrumb"
 
-const BreadcrumbList = React.forwardRef<
-  HTMLOListElement,
-  React.ComponentPropsWithoutRef<"ol">
->(({ className, ...props }, ref) => (
-  <ol
-    ref={ref}
-    className={cn(
-      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
-      className
-    )}
-    {...props}
-  />
-))
+/* ── BreadcrumbList with optional gradient container ─────── */
+const breadcrumbListVariants = cva(
+  "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
+  {
+    variants: {
+      variant: {
+        default: "",
+        primary: "bg-gradient-to-r from-primary-muted to-background px-4 py-2 rounded-lg border border-primary/20 text-primary",
+        success: "bg-gradient-to-r from-success-muted to-background px-4 py-2 rounded-lg border border-success/20 text-success",
+        danger:  "bg-gradient-to-r from-danger-muted  to-background px-4 py-2 rounded-lg border border-danger/20  text-danger",
+        warning: "bg-gradient-to-r from-warning-muted to-background px-4 py-2 rounded-lg border border-warning/20 text-warning-foreground",
+        info:    "bg-gradient-to-r from-info-muted    to-background px-4 py-2 rounded-lg border border-info/20    text-info",
+        subtle:  "bg-gradient-to-r from-card to-muted/30 px-4 py-2 rounded-lg border border-border",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+export interface BreadcrumbListProps
+  extends React.ComponentPropsWithoutRef<"ol">,
+    VariantProps<typeof breadcrumbListVariants> {}
+
+const BreadcrumbList = React.forwardRef<HTMLOListElement, BreadcrumbListProps>(
+  ({ className, variant, ...props }, ref) => (
+    <ol
+      ref={ref}
+      className={cn(breadcrumbListVariants({ variant }), className)}
+      {...props}
+    />
+  )
+)
 BreadcrumbList.displayName = "BreadcrumbList"
 
 const BreadcrumbItem = React.forwardRef<
@@ -102,7 +123,7 @@ const BreadcrumbEllipsis = ({
     <span className="sr-only">More</span>
   </span>
 )
-BreadcrumbEllipsis.displayName = "BreadcrumbElipssis"
+BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis"
 
 export {
   Breadcrumb,
@@ -112,4 +133,5 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
+  breadcrumbListVariants,
 }

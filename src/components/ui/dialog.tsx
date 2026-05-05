@@ -28,12 +28,13 @@ const DialogOverlay = React.forwardRef<
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
-/* ── Content size variants ───────────────────────────────── */
+/* ── Content: size + border color only — gradient lives on DialogHeader ── */
 const dialogContentVariants = cva(
   [
     "fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2",
-    "grid w-full gap-0 bg-popover text-popover-foreground",
-    "border border-border rounded-xl shadow-modal",
+    "grid w-full gap-0",
+    "border rounded-xl shadow-modal overflow-hidden",
+    "bg-popover text-popover-foreground",
     "duration-normal",
     "data-[state=open]:animate-in data-[state=closed]:animate-out",
     "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -44,16 +45,25 @@ const dialogContentVariants = cva(
   {
     variants: {
       size: {
-        sm:   "max-w-sm",
+        sm:      "max-w-sm",
         default: "max-w-lg",
-        md:   "max-w-xl",
-        lg:   "max-w-2xl",
-        xl:   "max-w-4xl",
-        full: "max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]",
+        md:      "max-w-xl",
+        lg:      "max-w-2xl",
+        xl:      "max-w-4xl",
+        full:    "max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]",
+      },
+      variant: {
+        default: "border-border",
+        primary: "border-primary/25",
+        success: "border-success/25",
+        danger:  "border-danger/25",
+        warning: "border-warning/25",
+        info:    "border-info/25",
       },
     },
     defaultVariants: {
-      size: "default",
+      size:    "default",
+      variant: "default",
     },
   }
 );
@@ -67,12 +77,12 @@ export interface DialogContentProps
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, size, hideClose = false, ...props }, ref) => (
+>(({ className, children, size, variant, hideClose = false, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className={cn(dialogContentVariants({ size }), className)}
+      className={cn(dialogContentVariants({ size, variant }), className)}
       {...props}
     >
       {children}
@@ -96,21 +106,46 @@ const DialogContent = React.forwardRef<
 ));
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
-/* ── DialogHeader ────────────────────────────────────────── */
-const DialogHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { divider?: boolean }
->(({ className, divider = false, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "flex flex-col gap-1 px-6 py-4 pr-12",
-      divider && "border-b border-border",
-      className
-    )}
-    {...props}
-  />
-));
+/* ── DialogHeader variants (gradient applied here) ───────── */
+const dialogHeaderVariants = cva(
+  "bg-gradient-to-br transition-colors duration-normal ease-smooth",
+  {
+    variants: {
+      variant: {
+        default: "from-popover to-muted/30",
+        primary: "from-primary-muted to-background text-primary",
+        success: "from-success-muted to-background text-success",
+        danger:  "from-danger-muted  to-background text-danger",
+        warning: "from-warning-muted to-background text-warning-foreground",
+        info:    "from-info-muted    to-background text-info",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
+
+export interface DialogHeaderProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof dialogHeaderVariants> {
+  divider?: boolean;
+}
+
+const DialogHeader = React.forwardRef<HTMLDivElement, DialogHeaderProps>(
+  ({ className, variant, divider = false, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "flex flex-col gap-1 px-6 py-4 pr-12",
+        dialogHeaderVariants({ variant }),
+        divider && "border-b border-border",
+        className
+      )}
+      {...props}
+    />
+  )
+);
 DialogHeader.displayName = "DialogHeader";
 
 /* ── DialogBody ──────────────────────────────────────────── */
@@ -177,4 +212,5 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  dialogHeaderVariants,
 };

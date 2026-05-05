@@ -14,25 +14,26 @@ const alertVariants = cva(
     "relative w-full rounded-lg border px-4 py-3 text-ds-sm",
     "flex items-start gap-3",
     "[&>svg]:shrink-0 [&>svg]:mt-0.5",
+    "bg-gradient-to-br",
   ].join(" "),
   {
     variants: {
       variant: {
         default:
-          "bg-background text-foreground border-border [&>svg]:text-foreground",
+          "from-background to-muted/30 text-foreground border-border [&>svg]:text-foreground",
         primary:
-          "bg-primary-muted text-primary border-primary/20 dark:bg-primary/10 dark:border-primary/30 [&>svg]:text-primary",
+          "from-primary-muted to-background text-primary border-primary/20 dark:from-primary/15 dark:to-background dark:border-primary/30 [&>svg]:text-primary",
         success:
-          "bg-success-muted text-success border-success/20 dark:bg-success/10 dark:border-success/30 [&>svg]:text-success",
+          "from-success-muted to-background text-success border-success/20 dark:from-success/15 dark:to-background dark:border-success/30 [&>svg]:text-success",
         danger:
-          "bg-danger-muted text-danger border-danger/20 dark:bg-danger/10 dark:border-danger/30 [&>svg]:text-danger",
+          "from-danger-muted to-background text-danger border-danger/20 dark:from-danger/15 dark:to-background dark:border-danger/30 [&>svg]:text-danger",
         warning:
-          "bg-warning-muted text-warning-foreground border-warning/20 dark:bg-warning/10 dark:border-warning/30 [&>svg]:text-warning",
+          "from-warning-muted to-background text-warning-foreground border-warning/20 dark:from-warning/15 dark:to-background dark:border-warning/30 [&>svg]:text-warning",
         info:
-          "bg-info-muted text-info border-info/20 dark:bg-info/10 dark:border-info/30 [&>svg]:text-info",
+          "from-info-muted to-background text-info border-info/20 dark:from-info/15 dark:to-background dark:border-info/30 [&>svg]:text-info",
         /* legacy alias */
         destructive:
-          "bg-danger-muted text-danger border-danger/20 dark:bg-danger/10 dark:border-danger/30 [&>svg]:text-danger",
+          "from-danger-muted to-background text-danger border-danger/20 dark:from-danger/15 dark:to-background dark:border-danger/30 [&>svg]:text-danger",
       },
     },
     defaultVariants: {

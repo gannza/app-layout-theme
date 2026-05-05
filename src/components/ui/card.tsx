@@ -3,26 +3,58 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/* ── Card elevation variants ─────────────────────────────── */
+/* ── Card variants (border + elevation only — gradient lives on CardHeader) ── */
 const cardVariants = cva(
-  "relative rounded-xl border bg-card text-card-foreground transition-shadow duration-normal ease-smooth",
+  [
+    "relative rounded-xl border bg-card text-card-foreground overflow-hidden",
+    "transition-colors duration-normal ease-smooth",
+  ].join(" "),
   {
     variants: {
+      variant: {
+        default:  "border-border",
+        primary:  "border-primary/25",
+        success:  "border-success/25",
+        danger:   "border-danger/25",
+        warning:  "border-warning/25",
+        info:     "border-info/25",
+      },
       elevation: {
-        flat:    "shadow-none border-border",
-        raised:  "shadow-card border-border",
-        medium:  "shadow-md border-transparent",
-        high:    "shadow-lg border-transparent",
-        overlay: "shadow-modal border-transparent",
+        flat:    "shadow-none",
+        raised:  "shadow-xs",
+        medium:  "shadow-sm",
+        high:    "shadow-md",
+        overlay: "shadow-lg",
       },
       hoverable: {
-        true:  "hover:shadow-md cursor-pointer",
+        true:  "hover:border-primary/30 hover:shadow-sm cursor-pointer",
         false: "",
       },
     },
     defaultVariants: {
-      elevation: "raised",
+      variant:   "default",
+      elevation: "flat",
       hoverable: false,
+    },
+  }
+);
+
+/* ── CardHeader variants (gradient applied here, not on the Card root) ── */
+const cardHeaderVariants = cva(
+  "bg-gradient-to-br transition-colors duration-normal ease-smooth",
+  {
+    variants: {
+      variant: {
+        default:  "from-card to-muted/20",
+        primary:  "from-primary-muted to-background text-primary",
+        success:  "from-success-muted to-background text-success",
+        danger:   "from-danger-muted  to-background text-danger",
+        warning:  "from-warning-muted to-background text-warning-foreground",
+        info:     "from-info-muted    to-background text-info",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
     },
   }
 );
@@ -33,10 +65,10 @@ export interface CardProps
     VariantProps<typeof cardVariants> {}
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, elevation, hoverable, ...props }, ref) => (
+  ({ className, variant, elevation, hoverable, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(cardVariants({ elevation, hoverable }), className)}
+      className={cn(cardVariants({ variant, elevation, hoverable }), className)}
       {...props}
     />
   )
@@ -44,23 +76,26 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 Card.displayName = "Card";
 
 /* ── CardHeader ──────────────────────────────────────────── */
-export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** Right-aligned content slot (icon, badge, actions) */
+export interface CardHeaderProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardHeaderVariants> {
   action?: React.ReactNode;
-  /** Show a bottom divider */
   divider?: boolean;
-  /** Optional accent background on the header */
   accent?: boolean;
   onClose?: () => void;
 }
 
 const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
-  ({ className, action, divider = false, accent = false, onClose, children, ...props }, ref) => (
+  (
+    { className, variant, action, divider = false, accent = false, onClose, children, ...props },
+    ref
+  ) => (
     <div
       ref={ref}
       className={cn(
         "flex items-start justify-between gap-3 px-5 py-4",
-        accent && "bg-primary/5 dark:bg-primary/10",
+        cardHeaderVariants({ variant }),
+        accent && "bg-gradient-to-r from-primary/8 to-transparent dark:from-primary/12",
         divider && "border-b border-border",
         className
       )}
@@ -138,7 +173,6 @@ CardContent.displayName = "CardContent";
 
 /* ── CardFooter ──────────────────────────────────────────── */
 export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** Show a top divider */
   divider?: boolean;
 }
 
@@ -166,4 +200,5 @@ export {
   CardContent,
   CardFooter,
   cardVariants,
+  cardHeaderVariants,
 };

@@ -8,74 +8,75 @@ const buttonVariants = cva(
   [
     "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium",
     "rounded-lg border border-transparent",
-    "transition-all duration-normal ease-smooth",
+    "transition-all duration-[150ms] ease-smooth",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     "disabled:pointer-events-none disabled:opacity-50",
-    "active:scale-[0.97]",
+    "active:scale-[0.96]",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
+    "relative overflow-hidden btn-click",
   ].join(" "),
   {
     variants: {
       variant: {
         /* ── Solid fills ─────────────────────────────── */
         primary:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover active:bg-primary-active",
+          "bg-primary text-[#ffffff] hover:bg-primary-hover active:bg-primary-active",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary-hover active:bg-secondary-active border-border",
+          "bg-secondary text-secondary-foreground hover:bg-secondary-hover active:bg-secondary-active border-border btn-click-soft",
         success:
-          "bg-success text-success-foreground shadow-sm hover:bg-success-hover active:bg-success-active",
+          "bg-success text-[#ffffff] hover:bg-success-hover active:bg-success-active",
         danger:
-          "bg-danger text-danger-foreground shadow-sm hover:bg-danger-hover active:bg-danger-active",
+          "bg-danger text-[#ffffff] hover:bg-danger-hover active:bg-danger-active",
         warning:
-          "bg-warning text-warning-foreground shadow-sm hover:bg-warning-hover active:bg-warning-active",
+          "bg-warning text-warning-foreground hover:bg-warning-hover active:bg-warning-active",
         info:
-          "bg-info text-info-foreground shadow-sm hover:bg-info-hover active:bg-info-active",
+          "bg-info text-[#ffffff] hover:bg-info-hover active:bg-info-active",
         light:
-          "bg-light text-light-foreground shadow-sm hover:bg-light-hover active:bg-light-active border-border",
+          "bg-light text-light-foreground hover:bg-light-hover active:bg-light-active border-border btn-click-soft",
         dark:
-          "bg-dark text-dark-foreground shadow-sm hover:bg-dark-hover active:bg-dark-active",
+          "bg-dark text-[#ffffff] hover:bg-dark-hover active:bg-dark-active",
 
         /* ── Outline variants ────────────────────────── */
         "outline-primary":
-          "border-primary text-primary bg-transparent hover:bg-primary/10 active:bg-primary/20",
+          "border-primary text-primary bg-transparent hover:bg-primary/10 active:bg-primary/20 btn-click-soft",
         "outline-secondary":
-          "border-border text-secondary-foreground bg-transparent hover:bg-secondary active:bg-secondary-hover",
+          "border-border text-secondary-foreground bg-transparent hover:bg-secondary active:bg-secondary-hover btn-click-soft",
         "outline-success":
-          "border-success text-success bg-transparent hover:bg-success/10 active:bg-success/20",
+          "border-success text-success bg-transparent hover:bg-success/10 active:bg-success/20 btn-click-soft",
         "outline-danger":
-          "border-danger text-danger bg-transparent hover:bg-danger/10 active:bg-danger/20",
+          "border-danger text-danger bg-transparent hover:bg-danger/10 active:bg-danger/20 btn-click-soft",
         "outline-warning":
-          "border-warning text-warning-foreground bg-transparent hover:bg-warning/10 active:bg-warning/20",
+          "border-warning text-warning-foreground bg-transparent hover:bg-warning/10 active:bg-warning/20 btn-click-soft",
         "outline-info":
-          "border-info text-info bg-transparent hover:bg-info/10 active:bg-info/20",
+          "border-info text-info bg-transparent hover:bg-info/10 active:bg-info/20 btn-click-soft",
 
         /* ── Soft / Muted variants ───────────────────── */
         "soft-primary":
-          "bg-primary-muted text-primary hover:bg-primary/20 active:bg-primary/30",
+          "bg-primary-muted text-primary hover:bg-primary/20 active:bg-primary/30 btn-click-soft",
         "soft-success":
-          "bg-success-muted text-success hover:bg-success/20 active:bg-success/30",
+          "bg-success-muted text-success hover:bg-success/20 active:bg-success/30 btn-click-soft",
         "soft-danger":
-          "bg-danger-muted text-danger hover:bg-danger/20 active:bg-danger/30",
+          "bg-danger-muted text-danger hover:bg-danger/20 active:bg-danger/30 btn-click-soft",
         "soft-warning":
-          "bg-warning-muted text-warning-foreground hover:bg-warning/20 active:bg-warning/30",
+          "bg-warning-muted text-warning-foreground hover:bg-warning/20 active:bg-warning/30 btn-click-soft",
         "soft-info":
-          "bg-info-muted text-info hover:bg-info/20 active:bg-info/30",
+          "bg-info-muted text-info hover:bg-info/20 active:bg-info/30 btn-click-soft",
 
         /* ── Legacy / ShadCN compat aliases ─────────── */
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover active:bg-primary-active",
+          "bg-primary text-[#ffffff] hover:bg-primary-hover active:bg-primary-active",
         destructive:
-          "bg-danger text-danger-foreground shadow-sm hover:bg-danger-hover active:bg-danger-active",
+          "bg-danger text-[#ffffff] hover:bg-danger-hover active:bg-danger-active",
         outline:
-          "border-border text-foreground bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+          "border-border text-foreground bg-background hover:bg-accent hover:text-accent-foreground btn-click-soft",
         ghost:
-          "text-foreground hover:bg-accent hover:text-accent-foreground",
+          "text-foreground hover:bg-accent hover:text-accent-foreground btn-click-soft",
         link:
-          "text-primary underline-offset-4 hover:underline hover:text-primary-hover p-0 h-auto",
+          "text-primary underline-offset-4 hover:underline hover:text-primary-hover p-0 h-auto btn-click-soft",
 
         /* ── Primary-light (backward compat) ─────────── */
         "primary-light":
-          "bg-primary-muted text-primary hover:bg-primary/20 active:bg-primary/30",
+          "bg-primary-muted text-primary hover:bg-primary/20 active:bg-primary/30 btn-click-soft",
       },
 
       size: {

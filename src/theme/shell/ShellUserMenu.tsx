@@ -18,6 +18,8 @@ import {
   LogOut,
   Moon,
   Sun,
+  Circle,
+  ChevronDown,
 } from "lucide-react";
 import { getAvatarColor } from "./avatarColors";
 import { ShellUserMenuItem } from "./types";
@@ -72,12 +74,16 @@ export const ShellUserMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 rounded-full border border-slate-200 bg-white/70 hover:bg-white dark:border-[var(--ds-border,#E3E4F21F)] dark:bg-[var(--ds-surface,#1F1F21)] dark:hover:bg-[var(--ds-surface,#1F1F21)]"
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-2.5 rounded-xl border px-2.5 py-1.5 h-auto",
+            "bg-white/70 hover:bg-white border-slate-200 transition-colors",
+            "dark:bg-[var(--ds-surface,#1F1F21)] dark:hover:bg-[var(--ds-surface-overlay,#2B2C2F)] dark:border-[var(--ds-border,#E3E4F21F)]",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          )}
         >
-          <Avatar className="h-9 w-9 border border-slate-200/70 dark:border-[var(--ds-border,#E3E4F21F)]">
+          <Avatar className="h-8 w-8 shrink-0 border border-slate-200/70 dark:border-[var(--ds-border,#E3E4F21F)]">
             {user.avatarUrl && (
               <AvatarImage src={user.avatarUrl} alt={user.name} />
             )}
@@ -91,7 +97,19 @@ export const ShellUserMenu = () => {
               {initials}
             </AvatarFallback>
           </Avatar>
-        </Button>
+          <div className="flex flex-col items-start min-w-0 max-w-[140px]">
+            <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate w-full leading-tight">
+              {user.name}
+            </span>
+            {(user.subtitle ?? user.email) && (
+              <span className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 truncate w-full leading-tight mt-0.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
+                {user.subtitle ?? user.email}
+              </span>
+            )}
+          </div>
+          <ChevronDown className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 shrink-0 ml-0.5" />
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -157,14 +175,14 @@ export const ShellUserMenu = () => {
               "data-[state=open]:bg-slate-100 dark:data-[state=open]:bg-slate-800"
             )}
           >
-            <Moon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <Moon className="h-4 w-4 text-[#3725c7] dark:text-[var(--ds-link,#669DF1)]" />
             <span className="text-sm font-medium">Theme</span>
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent className="p-1 w-44">
             <DropdownMenuRadioGroup
               value={themeMode}
               onValueChange={(value) =>
-                setThemeMode(value as "light" | "dark")
+                setThemeMode(value as "light" | "dark" | "white")
               }
             >
               <DropdownMenuRadioItem
@@ -180,6 +198,13 @@ export const ShellUserMenu = () => {
               >
                 <Moon className="h-4 w-4 text-slate-700 dark:text-slate-200" />
                 <span className="text-sm">Dark</span>
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem
+                value="white"
+                className="flex items-center gap-2 cursor-pointer px-2 py-2 rounded-sm focus:bg-accent"
+              >
+                <Circle className="h-4 w-4 text-slate-400 dark:text-slate-200" />
+                <span className="text-sm">White</span>
               </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
@@ -208,30 +233,26 @@ export const ShellUserMenu = () => {
           </DropdownMenuItem>
         ))}
 
-        <DropdownMenuItem
-          className="flex items-center gap-3 px-4 py-2 cursor-pointer rounded-none focus:bg-slate-100 dark:focus:bg-slate-800 text-red-600 focus:text-red-600"
-          onSelect={(event) => {
-            event.preventDefault();
-            logoutItem?.onSelect?.();
-          }}
-          asChild={!!logoutItem?.href}
-        >
+        <div className="px-3 pb-3 pt-1">
           {logoutItem?.href ? (
-            <a href={logoutItem.href}>
-              <LogOut className="h-4 w-4" />
-              <span className="text-sm font-medium">
-                {logoutItem.label || "Log out"}
-              </span>
+            <a
+              href={logoutItem.href}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-danger-muted px-3 py-2 text-sm font-medium text-danger hover:bg-danger/15 transition-colors"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              <span>{logoutItem.label || "Sign out"}</span>
             </a>
           ) : (
-            <>
-              <LogOut className="h-4 w-4" />
-              <span className="text-sm font-medium">
-                {logoutItem?.label || "Log out"}
-              </span>
-            </>
+            <button
+              type="button"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-danger-muted px-3 py-2 text-sm font-medium text-danger hover:bg-danger/15 transition-colors cursor-pointer"
+              onClick={() => logoutItem?.onSelect?.()}
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              <span>{logoutItem?.label || "Sign out"}</span>
+            </button>
           )}
-        </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

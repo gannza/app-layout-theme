@@ -64,6 +64,7 @@ export type AppLauncherItem = {
 export type ShellUser = {
   name: string;
   email?: string;
+  subtitle?: string;
   avatarUrl?: string;
   extras?: ReactNode;
   menuItems?: ShellUserMenuItem[];
@@ -83,7 +84,7 @@ export type ShellInstitution = {
   acronym: string;
 };
 
-export type ShellThemeMode = "light" | "dark";
+export type ShellThemeMode = "light" | "dark" | "white";
 
 export type ShellThemeOptions = {
   initialMode?: ShellThemeMode;

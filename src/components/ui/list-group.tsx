@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 /* ── ListGroup root ──────────────────────────────────────── */
 const listGroupVariants = cva(
-  "w-full rounded-xl border border-border overflow-hidden bg-card",
+  "w-full rounded-xl border border-border overflow-hidden bg-gradient-to-br from-card to-muted/20",
   {
     variants: {
       flush: {
@@ -47,19 +47,20 @@ const listGroupItemVariants = cva(
     "text-ds-md text-foreground",
     "transition-colors duration-fast ease-smooth",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+    "bg-gradient-to-br",
   ].join(" "),
   {
     variants: {
       variant: {
-        default: "bg-card hover:bg-accent/50",
-        primary: "bg-primary-muted text-primary hover:bg-primary/15",
-        success: "bg-success-muted text-success hover:bg-success/15",
-        danger:  "bg-danger-muted text-danger hover:bg-danger/15",
-        warning: "bg-warning-muted text-warning-foreground hover:bg-warning/15",
-        info:    "bg-info-muted text-info hover:bg-info/15",
+        default: "from-card to-muted/10 hover:from-accent/60 hover:to-accent/20",
+        primary: "from-primary-muted to-background text-primary border-primary/10 hover:from-primary/25 hover:to-primary/5",
+        success: "from-success-muted to-background text-success border-success/10 hover:from-success/25 hover:to-success/5",
+        danger:  "from-danger-muted to-background text-danger border-danger/10 hover:from-danger/25 hover:to-danger/5",
+        warning: "from-warning-muted to-background text-warning-foreground border-warning/10 hover:from-warning/25 hover:to-warning/5",
+        info:    "from-info-muted to-background text-info border-info/10 hover:from-info/25 hover:to-info/5",
       },
       active: {
-        true:  "bg-primary/10 text-primary font-medium",
+        true:  "from-primary/15 to-primary/5 text-primary font-medium",
         false: "",
       },
       disabled: {
@@ -152,7 +153,6 @@ const ListGroupItem = React.forwardRef<HTMLLIElement, ListGroupItemProps>(
     return (
       <li
         ref={ref}
-        role={isInteractive ? "button" : undefined}
         tabIndex={isInteractive && !disabled ? 0 : undefined}
         onClick={!disabled ? onClick : undefined}
         onKeyDown={
