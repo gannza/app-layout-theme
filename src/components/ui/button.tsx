@@ -28,7 +28,7 @@ const buttonVariants = cva(
         danger:
           "bg-danger text-[#ffffff] hover:bg-danger-hover active:bg-danger-active",
         warning:
-          "bg-warning text-warning-foreground hover:bg-warning-hover active:bg-warning-active",
+          "bg-warning text-[#ffffff] hover:bg-warning-hover active:bg-warning-active",
         info:
           "bg-info text-[#ffffff] hover:bg-info-hover active:bg-info-active",
         light:
@@ -58,7 +58,7 @@ const buttonVariants = cva(
         "soft-danger":
           "bg-danger-muted text-danger hover:bg-danger/20 active:bg-danger/30 btn-click-soft",
         "soft-warning":
-          "bg-warning-muted text-warning-foreground hover:bg-warning/20 active:bg-warning/30 btn-click-soft",
+          "bg-warning-muted text-warning hover:bg-warning/20 active:bg-warning/30 btn-click-soft",
         "soft-info":
           "bg-info-muted text-info hover:bg-info/20 active:bg-info/30 btn-click-soft",
 

@@ -71,9 +71,9 @@ export const ShellInstitutionSelector = ({
           variant="ghost"
           size="lg"
           title={selected?.name || institutionPlaceholder}
-          className="h-9 dark:border-[var(--ds-surface-overlay,#2B2C2F)] hover:bg-[#ebe9f9] hover:text-[#3725c7] px-2 pr-3 flex items-center gap-2 text-sm"
+          className="h-9 dark:border-[var(--ds-surface-overlay,#2B2C2F)] hover:bg-[#ebe9f9] hover:text-[#3725c7] px-2 pr-3 flex items-center gap-2 text-sm truncate"
         >
-          <span className="inline-flex truncate max-w-[200px]">
+          <span className="inline-flex truncate max-w-[200px] ">
             {block ? selected?.name : (selected?.acronym || institutionPlaceholder)}
           </span>
           <ChevronDown className="h-4 w-4 text-slate-400" />

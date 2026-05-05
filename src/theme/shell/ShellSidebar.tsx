@@ -17,23 +17,25 @@ import {
 import { cn } from "@/lib/utils";
 import { useShellConfig } from "./ShellContext";
 import { ShellLinkComponentProps, ShellMenuItem } from "./types";
-import { useMemo, useState, useEffect, useRef, ComponentType } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { useMemo, useState, useEffect, useRef, ComponentType, forwardRef } from "react";
+import { ChevronDown, ChevronRight, ChevronLeft } from "lucide-react";
 import { ShellInstitutionSelector } from "./ShellInstitutionSelector";
 
 /* ── Default link ────────────────────────────────────────── */
-const DefaultLink = ({ to, href, className, children, onClick }: ShellLinkComponentProps) => {
-  if (to) {
-    return (
-      <NavLink
+const DefaultLink = forwardRef<HTMLAnchorElement, ShellLinkComponentProps>(
+  ({ to, href, className, children, onClick }, ref) => {
+    if (to) {
+      return (
+        <NavLink
+          ref={ref}
         to={to}
         className={({ isActive }) => {
           const isSubmenuLink = className?.includes("submenu-link");
           return cn(
-            "flex items-center gap-3 text-sm font-medium transition-colors w-full",
+            "flex items-center gap-3 text-[15px] font-medium transition-colors w-full",
             isSubmenuLink
-              ? "rounded-none px-2 py-2"
-              : "rounded-md px-2 py-2",
+              ? "rounded-none px-3 py-2.5"
+              : "rounded-lg px-3 py-2.5",
             isActive
               ? isSubmenuLink
                 ? "bg-transparent shadow-none text-[#3725c7] dark:text-[var(--ds-link,#669DF1)]"
@@ -53,12 +55,13 @@ const DefaultLink = ({ to, href, className, children, onClick }: ShellLinkCompon
 
   return (
     <a
+      ref={ref}
       href={href}
       className={cn(
-        "flex items-center gap-3 text-sm font-medium transition-colors w-full text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80",
+        "flex items-center gap-3 text-[15px] font-medium transition-colors w-full text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80",
         className?.includes("submenu-link")
-          ? "rounded-none px-2 py-2 hover:bg-transparent hover:text-[#3725c7] dark:hover:text-[var(--ds-link,#669DF1)]"
-          : "rounded-md px-2 py-2 hover:bg-[#ebe9f9] hover:text-[#3725c7] hover:shadow-[inset_2px_0_0_0_rgba(55,37,199,0.9)] hover:pl-[11px] dark:hover:bg-[#ebe9f9] dark:hover:text-[var(--ds-link,#669DF1)]",
+          ? "rounded-none px-3 py-2.5 hover:bg-transparent hover:text-[#3725c7] dark:hover:text-[var(--ds-link,#669DF1)]"
+          : "rounded-lg px-3 py-2.5 hover:bg-[#ebe9f9] hover:text-[#3725c7] hover:shadow-[inset_2px_0_0_0_rgba(55,37,199,0.9)] hover:pl-[11px] dark:hover:bg-[#ebe9f9] dark:hover:text-[var(--ds-link,#669DF1)]",
         className
       )}
       onClick={onClick}
@@ -66,7 +69,7 @@ const DefaultLink = ({ to, href, className, children, onClick }: ShellLinkCompon
       {children}
     </a>
   );
-};
+});
 
 /* ── Icon container used in collapsed rail ───────────────── */
 const IconPill = ({
@@ -80,14 +83,14 @@ const IconPill = ({
 }) => (
   <span
     className={cn(
-      "flex h-9 w-9 items-center justify-center rounded-xl transition-colors duration-150",
+      "flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-200",
       active
-        ? "bg-[#ebe9f9] text-[#3725c7] dark:bg-blue-500/15 dark:text-[var(--ds-link,#669DF1)]"
-        : "text-slate-500 dark:text-[var(--ds-text,#CECFD2)]/60 group-hover/iconbtn:bg-[#ebe9f9]/70 group-hover/iconbtn:text-[#3725c7] dark:group-hover/iconbtn:bg-blue-500/10 dark:group-hover/iconbtn:text-[var(--ds-link,#669DF1)]",
+        ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30 dark:bg-emerald-600"
+        : "text-slate-400 group-hover/iconbtn:bg-slate-100 group-hover/iconbtn:text-slate-600 dark:group-hover/iconbtn:bg-slate-800 dark:group-hover/iconbtn:text-slate-200",
       className
     )}
   >
-    <Icon className="h-[18px] w-[18px] shrink-0" />
+    <Icon className={cn("shrink-0", active ? "h-5 w-5" : "h-[22px] w-[22px]")} />
   </span>
 );
 
@@ -124,7 +127,7 @@ const CollapsedSubmenuPopover = ({
           type="button"
           onMouseEnter={show}
           onMouseLeave={hide}
-          className="group/iconbtn flex w-full items-center justify-center py-0.5 focus:outline-none"
+          className="group/iconbtn flex w-full items-center justify-center py-0.5 focus:outline-none py-2 px-2"
           aria-label={item.label}
         >
           {item.icon ? (
@@ -132,7 +135,7 @@ const CollapsedSubmenuPopover = ({
           ) : (
             <span
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition-colors",
+                "flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-colors",
                 isActiveBranch
                   ? "bg-[#ebe9f9] text-[#3725c7] dark:bg-blue-500/15 dark:text-[var(--ds-link,#669DF1)]"
                   : "text-slate-400 group-hover/iconbtn:bg-[#ebe9f9]/70 group-hover/iconbtn:text-[#3725c7]"
@@ -177,7 +180,7 @@ const CollapsedSubmenuPopover = ({
                   setOpenMobile(false);
                 }}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors w-full",
+                  "flex items-center my-1 gap-2.5 rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors w-full",
                   isActive
                     ? "bg-[#ebe9f9] text-[#3725c7] dark:bg-blue-500/10 dark:text-[var(--ds-link,#669DF1)]"
                     : "text-slate-600 dark:text-[var(--ds-text,#CECFD2)]/80 hover:bg-accent hover:text-accent-foreground"
@@ -198,7 +201,7 @@ const CollapsedSubmenuPopover = ({
 export const ShellSidebar = () => {
   const { menus, sidebarFooter, sidebarHeader, linkComponent, onMenuSelect, themeMode } =
     useShellConfig();
-  const { state, setOpenMobile, isMobile } = useSidebar();
+  const { state, setOpenMobile, isMobile, toggleSidebar } = useSidebar();
   const location = useLocation();
   const LinkComponent = linkComponent ?? DefaultLink;
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});
@@ -243,7 +246,7 @@ export const ShellSidebar = () => {
           : "border-slate-100 bg-white"
       )}
     >
-      <SidebarHeader className="bg-white dark:bg-[var(--ds-surface,#1F1F21)]">
+      <SidebarHeader className="bg-white dark:bg-[var(--ds-surface,#1F1F21)] relative">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -256,7 +259,7 @@ export const ShellSidebar = () => {
             </SidebarMenuButton>
           </SidebarMenuItem>
           {(isMobile || state === "expanded") && (
-            <SidebarMenuItem className="pt-2">
+            <SidebarMenuItem className="pt-2 truncate">
               <ShellInstitutionSelector forceShow block />
             </SidebarMenuItem>
           )}
@@ -337,6 +340,17 @@ const CollapsedMenuNode = ({
   const hasChildren = !!item.children?.length;
   const isActive = !!item.to && item.to === location.pathname;
 
+  // If it's a section header (no to, no children, no icon)
+  if (!item.icon && !item.to && !hasChildren) {
+    return (
+      <div className="w-full flex justify-center mt-5 mb-2">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400/80">
+          {item.label}
+        </span>
+      </div>
+    );
+  }
+
   if (hasChildren) {
     return (
       <SidebarMenuItem>
@@ -373,7 +387,7 @@ const CollapsedMenuNode = ({
           ) : (
             <span
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition-colors",
+                "flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition-colors",
                 isActive
                   ? "bg-[#ebe9f9] text-[#3725c7] dark:bg-blue-500/15 dark:text-[var(--ds-link,#669DF1)]"
                   : "text-slate-400 group-hover/iconbtn:bg-[#ebe9f9]/70 group-hover/iconbtn:text-[#3725c7]"

@@ -4,12 +4,31 @@ A modern, feature-rich React component library built with TypeScript, Tailwind C
 
 ## Features
 
-- 🎨 **Modern Design**: Built with Tailwind CSS and Radix UI primitives
-- 📱 **Responsive**: Mobile-first design with responsive sidebar
-- 🌓 **Theme Support**: Built-in light/dark mode toggle
-- ♿ **Accessible**: Built on Radix UI for full accessibility support
-- 🔧 **TypeScript**: Fully typed for better developer experience
-- 🎯 **Customizable**: Highly configurable with props and theming options
+- **Modern Design**: Built with Tailwind CSS and Radix UI primitives
+- **Responsive**: Mobile-first design with responsive sidebar
+- **Theme Support**: Built-in light / dark / white mode toggle
+- **Accessible**: Built on Radix UI for full accessibility support
+- **TypeScript**: Fully typed for a better developer experience
+- **Customizable**: Highly configurable with props and theming options
+
+---
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Tailwind CSS & shadcn — What You Need to Know](#tailwind-css--shadcn--what-you-need-to-know)
+- [Quick Start](#quick-start)
+- [API Reference](#api-reference)
+  - [AppShell Props](#appshell-props)
+  - [Type Definitions](#type-definitions)
+- [DemoBlock](#demoblock)
+- [Examples](#examples)
+- [Styling](#styling)
+- [TypeScript](#typescript)
+- [Browser Support](#browser-support)
+- [Publishing](#publishing)
+
+---
 
 ## Installation
 
@@ -21,193 +40,217 @@ yarn add @ippis/app-layout-theme
 pnpm add @ippis/app-layout-theme
 ```
 
-## Peer Dependencies
-
-This library requires the following peer dependencies:
+### Peer Dependencies
 
 ```bash
 npm install react react-dom react-router-dom
 ```
 
+Supported versions: React 18+, React Router DOM 6 or 7.
+
+---
+
+## Tailwind CSS & shadcn — What You Need to Know
+
+### Do I need Tailwind CSS?
+
+**Short answer: yes, if you want to extend or customize the design tokens in your own components.**
+
+The library ships a pre-compiled stylesheet (`dist/style.css`) that contains all component styles. If you only use the shell and UI components as-is, you just need to import that file — no Tailwind installation required in your own project.
+
+However, if you want to:
+- Use the library's design tokens (e.g. `bg-primary`, `text-foreground`, `text-ds-sm`) inside your own components
+- Override colors via Tailwind config
+- Write Tailwind classes that pick up the library's CSS variable system
+
+…then you **must** have Tailwind CSS configured in your project and include the library's `dist/` folder in the `content` array so the JIT compiler scans it.
+
+### Do I need shadcn/ui?
+
+**No. This library does not use or require shadcn/ui.**
+
+All UI primitives are built directly on top of **Radix UI** with custom Tailwind styling. You do not need to run `npx shadcn@latest init` or install the shadcn CLI. Everything is bundled inside `@ippis/app-layout-theme`.
+
+If your project already uses shadcn/ui, the two libraries can coexist without conflict because the component names are scoped inside this package.
+
+---
+
 ## Quick Start
 
-### 1. Install Tailwind CSS
+### 1. Import the Stylesheet
 
-This library uses Tailwind CSS. Make sure you have Tailwind configured in your project:
+In your app's entry file, import the library's compiled CSS **before** your own styles:
+
+```tsx
+// src/main.tsx or src/index.tsx
+import "@ippis/app-layout-theme/dist/style.css";
+```
+
+This single import brings in all component styles, design tokens (CSS custom properties), and theme support. No additional configuration is needed if you are not using Tailwind.
+
+### 2. (Optional) Configure Tailwind
+
+If you want to use the library's design tokens inside your own Tailwind-powered components, install and configure Tailwind first:
 
 ```bash
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 ```
 
-### 2. Configure Tailwind
-
-Add the library's styles to your `tailwind.config.js`:
+Then add the library's `dist/` folder to the `content` array so Tailwind scans it:
 
 ```js
+// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: ["class"],
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "./node_modules/@ippis/app-layout-theme/dist/**/*.{js,ts,jsx,tsx}", // Add this
+    // Add this so Tailwind picks up tokens used inside the library
+    "./node_modules/@ippis/app-layout-theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      // Extend with the library's color tokens if needed
+      colors: {
+        primary:    "hsl(var(--primary))",
+        secondary:  "hsl(var(--secondary))",
+        foreground: "hsl(var(--foreground))",
+        background: "hsl(var(--background))",
+      },
+    },
   },
   plugins: [],
-}
+};
 ```
 
-### 3. Import Styles
+> You do **not** need `tailwindcss-animate` or any plugin the library uses internally — those are compiled into `dist/style.css` already.
 
-Import the library's CSS in your main entry file:
+### 3. Wrap Your App in BrowserRouter
+
+The shell uses React Router for active-link detection. Wrap your app in a `BrowserRouter` (or your own router):
 
 ```tsx
-// src/main.tsx or src/index.tsx
+// src/main.tsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import "@ippis/app-layout-theme/dist/style.css";
-// or if using a CSS bundler
-import "@ippis/app-layout-theme/dist/index.css";
+import App from "./App";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StrictMode>
+);
 ```
 
 ### 4. Use the AppShell Component
 
 ```tsx
-import { AppShell, ShellMenuItem } from "@ippis/app-layout-theme";
+import { AppShell } from "@ippis/app-layout-theme";
+import type { ShellMenuItem } from "@ippis/app-layout-theme";
 import { LayoutDashboard, Users, Settings } from "lucide-react";
-import { BrowserRouter } from "react-router-dom";
 
 function App() {
   const menus: ShellMenuItem[] = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      to: "/dashboard",
-    },
-    {
-      id: "users",
-      label: "Users",
-      icon: Users,
-      to: "/users",
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: Settings,
-      to: "/settings",
-    },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
+    { id: "users",     label: "Users",     icon: Users,           to: "/users" },
+    { id: "settings",  label: "Settings",  icon: Settings,        to: "/settings" },
   ];
 
   return (
-    <BrowserRouter>
-      <AppShell
-        title="My App"
-        subtitle="Application Description"
-        menus={menus}
-        user={{
-          name: "John Doe",
-          email: "john.doe@example.com",
-        }}
-        theme={{ initialMode: "light" }}
-      >
-        <div className="p-6">
-          <h1>Welcome to My App</h1>
-          {/* Your app content */}
-        </div>
-      </AppShell>
-    </BrowserRouter>
+    <AppShell
+      title="My App"
+      subtitle="Application Description"
+      menus={menus}
+      user={{ name: "John Doe", email: "john.doe@example.com" }}
+      theme={{ initialMode: "light" }}
+    >
+      <div className="p-6">
+        <h1>Welcome to My App</h1>
+      </div>
+    </AppShell>
   );
 }
 
 export default App;
 ```
 
+---
+
 ## API Reference
 
-### AppShell
-
-The main component that provides the application shell layout with sidebar, top bar, and footer.
-
-#### Props
-
-All available properties for the `AppShell` component:
+### AppShell Props
 
 | Prop | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `children` | `ReactNode` | ✅ **Yes** | - | Main content area rendered inside the shell |
-| `menus` | `ShellMenuItem[]` | ✅ **Yes** | - | Array of menu items for sidebar navigation. See [ShellMenuItem](#shellmenuitem) type below. |
-| `title` | `string` | No | - | Application title displayed in the sidebar header |
-| `subtitle` | `string` | No | - | Application subtitle displayed below the title |
-| `logo` | `ReactNode` | No | - | Custom logo component to display in the sidebar. Can be an image, SVG, or any React component |
-| `user` | `ShellUser` | No | - | User information object for the user menu in the top bar. See [ShellUser](#shelluser) type below |
-| `search` | `ShellSearchConfig` | No | - | Search configuration object. When provided, enables the search bar in the top bar. See [ShellSearchConfig](#shellsearchconfig) type below |
-| `showSearch` | `boolean` | No | `true` | Show or hide the search bar. Set to `false` to hide search even if `search` prop is provided |
-| `institutions` | `ShellInstitution[]` | No | - | Array of institution objects for the institution selector dropdown. See [ShellInstitution](#shellinstitution) type below |
-| `selectedInstitutionId` | `string` | No | - | ID of the currently selected institution. Must match one of the IDs in the `institutions` array |
-| `onInstitutionChange` | `(institutionId: string) => void` | No | - | Callback function called when user selects a different institution. Receives the new institution ID |
-| `institutionPlaceholder` | `string` | No | - | Placeholder text for the institution selector when no institution is selected |
-| `showInstitutionSelector` | `boolean` | No | `true` | Show or hide the institution selector in the top bar |
-| `quickActions` | `QuickAction[]` | No | - | Array of quick action buttons displayed in the top bar. See [QuickAction](#quickaction) type below |
-| `appLauncherItems` | `AppLauncherItem[]` | No | - | Array of items for the app launcher menu. See [AppLauncherItem](#applauncheritem) type below |
-| `sidebarHeader` | `ReactNode` | No | - | Custom content to display in the sidebar header. Overrides the default header with title/subtitle |
-| `sidebarFooter` | `ReactNode` | No | - | Custom content to display in the sidebar footer (below menu items) |
-| `footer` | `ReactNode` | No | - | Custom footer content. **Note:** Use `footerContent` instead for better control |
-| `footerContent` | `ReactNode` | No | - | Custom footer content that replaces the default footer. If not provided, shows default footer with copyright and links |
-| `showFooter` | `boolean` | No | `true` | Show or hide the footer at the bottom of the shell |
-| `pagination` | `PaginationConfig` | No | - | Pagination configuration object. When provided, displays pagination controls above the footer. See [PaginationConfig](#paginationconfig) type below |
-| `theme` | `ShellThemeOptions` | No | - | Theme configuration object for light/dark mode. See [ShellThemeOptions](#shellthemeoptions) type below |
-| `actions` | `ReactNode` | No | - | Custom action buttons or components to display in the top bar (next to quick actions) |
-| `linkComponent` | `ComponentType<ShellLinkComponentProps>` | No | - | Custom link component for menu navigation. Useful if you're using a different routing library. See [ShellLinkComponentProps](#shelllinkcomponentprops) type below |
-| `onMenuSelect` | `(item: ShellMenuItem) => void` | No | - | Callback function called when a menu item is clicked. Receives the clicked menu item object |
-| `className` | `string` | No | - | Additional CSS classes to apply to the root AppShell container |
+| `children` | `ReactNode` | Yes | — | Main content area rendered inside the shell |
+| `menus` | `ShellMenuItem[]` | Yes | — | Array of menu items for sidebar navigation |
+| `title` | `string` | No | — | Application title in the sidebar header |
+| `subtitle` | `string` | No | — | Application subtitle below the title |
+| `logo` | `ReactNode` | No | — | Custom logo (image, SVG, or React component) |
+| `user` | `ShellUser` | No | — | User info for the user menu in the top bar |
+| `search` | `ShellSearchConfig` | No | — | Search configuration; enables the search bar when provided |
+| `showSearch` | `boolean` | No | `true` | Show or hide the search bar |
+| `institutions` | `ShellInstitution[]` | No | — | Institutions for the institution selector dropdown |
+| `selectedInstitutionId` | `string` | No | — | ID of the currently selected institution |
+| `onInstitutionChange` | `(id: string) => void` | No | — | Callback when the user selects a different institution |
+| `institutionPlaceholder` | `string` | No | — | Placeholder text when no institution is selected |
+| `showInstitutionSelector` | `boolean` | No | `true` | Show or hide the institution selector |
+| `quickActions` | `QuickAction[]` | No | — | Quick action buttons displayed in the top bar |
+| `appLauncherItems` | `AppLauncherItem[]` | No | — | Items for the app-launcher menu |
+| `sidebarHeader` | `ReactNode` | No | — | Custom sidebar header (replaces the default title/logo block) |
+| `sidebarFooter` | `ReactNode` | No | — | Custom content at the bottom of the sidebar |
+| `footer` | `ReactNode` | No | — | Legacy footer slot; prefer `footerContent` |
+| `footerContent` | `ReactNode` | No | — | Replaces the default copyright footer |
+| `showFooter` | `boolean` | No | `true` | Show or hide the bottom footer bar |
+| `pagination` | `ShellPaginationConfig` | No | — | Pagination controls rendered above the footer |
+| `theme` | `ShellThemeOptions` | No | — | Theme mode configuration |
+| `actions` | `ReactNode` | No | — | Custom action area in the top bar |
+| `linkComponent` | `ComponentType<ShellLinkComponentProps>` | No | — | Custom link component (useful for non-React Router setups) |
+| `onMenuSelect` | `(item: ShellMenuItem) => void` | No | — | Callback when a menu item is clicked |
+| `className` | `string` | No | — | Additional CSS classes on the root container |
+
+---
 
 ### Type Definitions
 
 #### ShellMenuItem
 
-Menu item configuration for sidebar navigation. Supports nested menus with children.
+Represents a single item in the sidebar. Supports nested children for sub-menus.
 
 ```tsx
 type ShellMenuItem = {
-  id: string;                    // Unique identifier for the menu item (required)
-  label: string;                 // Display text for the menu item (required)
-  description?: string;          // Optional description text shown below the label
-  icon?: ComponentType<{ className?: string }>; // Optional icon component (e.g., from lucide-react)
-  to?: string;                   // React Router path for internal navigation
-  href?: string;                 // External URL for external links
-  onSelect?: () => void;         // Callback function called when item is clicked
-  badge?: ReactNode;             // Optional badge component (e.g., notification count)
-  disabled?: boolean;            // Disable the menu item (default: false)
-  children?: ShellMenuItem[];    // Nested menu items for sub-menus
-  meta?: Record<string, unknown>; // Optional metadata object for custom data
+  id: string;
+  label: string;
+  description?: string;
+  icon?: ComponentType<{ className?: string }>;
+  to?: string;                    // React Router path
+  href?: string;                  // External link
+  onSelect?: () => void;
+  badge?: ReactNode;
+  disabled?: boolean;
+  children?: ShellMenuItem[];     // Nested sub-menu items
+  meta?: Record<string, unknown>;
 };
 ```
 
 **Example:**
+
 ```tsx
 const menus: ShellMenuItem[] = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    to: "/dashboard",
-  },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
   {
     id: "settings",
     label: "Settings",
     icon: Settings,
     children: [
-      {
-        id: "settings-profile",
-        label: "Profile",
-        to: "/settings/profile",
-      },
-      {
-        id: "settings-account",
-        label: "Account",
-        to: "/settings/account",
-      },
+      { id: "settings-profile", label: "Profile",  to: "/settings/profile" },
+      { id: "settings-account", label: "Account",  to: "/settings/account" },
     ],
   },
 ];
@@ -215,146 +258,117 @@ const menus: ShellMenuItem[] = [
 
 #### ShellUser
 
-User information object for the user menu in the top bar.
-
 ```tsx
 type ShellUser = {
-  name: string;                  // User's full name (required)
-  email?: string;                // User's email address
-  avatarUrl?: string;            // URL to user's avatar image
-  extras?: ReactNode;            // Additional content to display in user menu header
-  menuItems?: ShellUserMenuItem[]; // Custom menu items for the user dropdown
+  name: string;
+  email?: string;
+  subtitle?: string;
+  avatarUrl?: string;
+  extras?: ReactNode;
+  menuItems?: ShellUserMenuItem[];
 };
 ```
 
 **Example:**
+
 ```tsx
 const user: ShellUser = {
   name: "John Doe",
   email: "john.doe@example.com",
   avatarUrl: "/avatars/john.jpg",
   menuItems: [
-    {
-      id: "profile",
-      label: "Profile",
-      icon: User,
-      href: "/profile",
-    },
-    {
-      id: "logout",
-      label: "Log out",
-      icon: LogOut,
-      onSelect: () => handleLogout(),
-      danger: true,
-    },
+    { id: "profile", label: "Profile",  icon: User,   href: "/profile" },
+    { id: "logout",  label: "Log out",  icon: LogOut, onSelect: handleLogout, danger: true },
   ],
 };
 ```
 
 #### ShellUserMenuItem
 
-Menu item for the user dropdown menu.
-
 ```tsx
 type ShellUserMenuItem = {
-  id: string;                    // Unique identifier (required)
-  label: string;                 // Display text (required)
-  icon?: ComponentType<{ className?: string }>; // Optional icon
-  description?: string;          // Optional description
-  href?: string;                 // External URL
-  onSelect?: () => void;         // Callback when clicked
-  danger?: boolean;              // Style as dangerous action (red text)
+  id: string;
+  label: string;
+  icon?: ComponentType<{ className?: string }>;
+  description?: string;
+  href?: string;
+  onSelect?: () => void;
+  danger?: boolean;               // Renders in red; use for destructive actions
 };
 ```
 
 #### ShellSearchConfig
 
-Configuration object for the search functionality.
-
 ```tsx
 type ShellSearchConfig = {
-  placeholder?: string;          // Placeholder text for search input (default: "Search...")
-  value?: string;                // Controlled search value
-  defaultValue?: string;         // Uncontrolled default value
-  debounceMs?: number;           // Debounce delay for onChange in milliseconds
-  onChange?: (value: string) => void; // Callback when search value changes
-  onSubmit?: (value: string) => void;  // Callback when user submits search (Enter key)
-  render?: (props: ShellSearchRenderProps) => ReactNode; // Custom render function
+  placeholder?: string;
+  value?: string;
+  defaultValue?: string;
+  debounceMs?: number;
+  onChange?: (value: string) => void;
+  onSubmit?: (value: string) => void;
+  render?: (props: ShellSearchRenderProps) => ReactNode;
 };
 ```
 
 **Example:**
+
 ```tsx
-const searchConfig: ShellSearchConfig = {
+search={{
   placeholder: "Search modules, actions or pages",
   value: searchTerm,
-  onChange: (value) => setSearchTerm(value),
-  onSubmit: (value) => {
-    console.log("Searching for:", value);
-    // Perform search
-  },
+  onChange: setSearchTerm,
+  onSubmit: (value) => console.log("Searching for:", value),
   debounceMs: 300,
-};
+}}
 ```
 
 #### ShellInstitution
 
-Institution object for the institution selector.
-
 ```tsx
 type ShellInstitution = {
-  id: string;                    // Unique identifier (required)
-  name: string;                  // Full institution name (required)
-  acronym: string;               // Short acronym (required)
+  id: string;
+  name: string;
+  acronym: string;
 };
 ```
 
 **Example:**
+
 ```tsx
 const institutions: ShellInstitution[] = [
-  {
-    id: "1",
-    name: "Ministry of Public Service and Labour",
-    acronym: "MIFOTRA",
-  },
-  {
-    id: "2",
-    name: "Ministry of Finance and Economic Planning",
-    acronym: "MINECOFIN",
-  },
+  { id: "1", name: "Ministry of Public Service and Labour",       acronym: "MIFOTRA"   },
+  { id: "2", name: "Ministry of Finance and Economic Planning",   acronym: "MINECOFIN" },
 ];
 ```
 
 #### QuickAction
 
-Quick action button configuration for the top bar.
-
 ```tsx
 type QuickAction = {
-  id: string;                    // Unique identifier (required)
-  icon: ComponentType<{ className?: string }>; // Icon component (required)
-  label?: string;                // Optional label text
-  tooltip?: string;              // Tooltip text shown on hover
-  onSelect?: () => void;         // Callback when clicked
-  panel?: ReactNode;             // Panel content shown when action is clicked (sheet/modal)
-  variant?: "default" | "primary"; // Visual variant (default: "default")
+  id: string;
+  icon: ComponentType<{ className?: string }>;
+  label?: string;
+  tooltip?: string;
+  onSelect?: () => void;
+  panel?: ReactNode;              // Slide-out panel shown when the action is clicked
+  variant?: "default" | "primary";
 };
 ```
 
 **Example:**
+
 ```tsx
 const quickActions: QuickAction[] = [
   {
     id: "notifications",
     icon: Bell,
-    label: "Notifications",
     tooltip: "View notifications",
     panel: <NotificationsPanel />,
   },
   {
     id: "help",
     icon: HelpCircle,
-    label: "Help",
     tooltip: "Get help",
     panel: <HelpPanel />,
     variant: "primary",
@@ -364,60 +378,39 @@ const quickActions: QuickAction[] = [
 
 #### AppLauncherItem
 
-Item for the app launcher menu.
-
 ```tsx
 type AppLauncherItem = {
-  id: string;                    // Unique identifier (required)
-  label: string;                 // Display text (required)
-  icon?: ComponentType<{ className?: string }>; // Optional icon
-  description?: string;          // Optional description
-  href?: string;                 // URL to navigate to
-  onSelect?: () => void;         // Callback when clicked
+  id: string;
+  label: string;
+  icon?: ComponentType<{ className?: string }>;
+  description?: string;
+  href?: string;
+  onSelect?: () => void;
+  openInNewTab?: boolean;
+};
+```
+
+#### ShellPaginationConfig
+
+```tsx
+type ShellPaginationConfig = {
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+  label?: string;
+  pageSize?: number;
+  pageSizeOptions?: number[];
+  onPageSizeChange?: (size: number) => void;
+  totalItems?: number;
+  showNumbers?: boolean;
+  isLoading?: boolean;
 };
 ```
 
 **Example:**
-```tsx
-const appLauncherItems: AppLauncherItem[] = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
-  },
-  {
-    id: "analytics",
-    label: "Analytics",
-    icon: BarChart,
-    description: "View analytics and reports",
-    href: "/analytics",
-  },
-];
-```
-
-#### PaginationConfig
-
-Pagination configuration object.
 
 ```tsx
-type PaginationConfig = {
-  page: number;                        // Current page number (1-indexed)
-  totalPages: number;                  // Total number of pages
-  onChange: (page: number) => void;    // Callback when page changes
-  label?: string;                      // Optional label text
-  pageSize?: number;                   // Current page size
-  pageSizeOptions?: number[];          // Available page sizes
-  onPageSizeChange?: (size: number) => void; // Callback when size changes
-  totalItems?: number;                 // Total number of records
-  showNumbers?: boolean;               // Toggle numbered buttons
-  isLoading?: boolean;                 // Disable controls + show spinner
-};
-```
-
-**Example:**
-```tsx
-const pagination: PaginationConfig = {
+pagination={{
   page: currentPage,
   totalPages,
   onChange: (page) => {
@@ -433,556 +426,239 @@ const pagination: PaginationConfig = {
   },
   totalItems,
   isLoading,
-};
+}}
 ```
 
 #### Using `useShellPagination`
 
-For most screens, you can register pagination controls via the `useShellPagination`
-hook instead of manually passing `pagination` props to `AppShell`.
+For page-level components, use the `useShellPagination` hook to register pagination controls automatically. Mounting the hook renders the footer controls; unmounting removes them.
 
 ```tsx
-import { useEffect, useState } from "react";
-import { useShellPagination } from "@/theme/shell";
+import { useShellPagination } from "@ippis/app-layout-theme";
 
 export const ApplicationsScreen = () => {
-  const [rows, setRows] = useState([]);
+  const { page, pageSize, setTotalItems, setLoading, isLoading } =
+    useShellPagination({
+      initialPageSize: 20,
+      pageSizeOptions: [10, 20, 50],
+      onPageChange: (nextPage, size) => fetchApplications(nextPage, size),
+      onPageSizeChange: (_, size) => fetchApplications(1, size),
+    });
 
-  const {
-    page,
-    pageSize,
-    setTotalItems,
-    setLoading,
-    isLoading,
-  } = useShellPagination({
-    initialPageSize: 20,
-    pageSizeOptions: [10, 20, 50],
-    onPageChange: (nextPage, size) => {
-      fetchApplications(nextPage, size);
-    },
-    onPageSizeChange: (_, size) => {
-      fetchApplications(1, size);
-    },
-  });
-
-  const fetchApplications = async (nextPage = page, size = pageSize) => {
+  const fetchApplications = async (p = page, s = pageSize) => {
     setLoading(true);
     try {
-      const response = await api.getApplications({ page: nextPage, size });
-      setRows(response.items);
-      setTotalItems(response.total);
+      const res = await api.getApplications({ page: p, size: s });
+      setRows(res.items);
+      setTotalItems(res.total);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchApplications(page, pageSize);
-  }, [page, pageSize]);
+  useEffect(() => { fetchApplications(); }, [page, pageSize]);
 
   return <ApplicationsTable data={rows} loading={isLoading} />;
 };
 ```
 
-Key tips:
-- Mounting `useShellPagination` automatically renders the footer controls; unmounting removes them.
-- Call `setTotalItems` when the backend returns the total count so the footer can display the range.
-- Use `setLoading` (or pass the `loading` option) to show the spinner and temporarily disable controls during fetches.
-
 #### ShellThemeOptions
-
-Theme configuration for light/dark mode.
 
 ```tsx
 type ShellThemeOptions = {
-  initialMode?: "light" | "dark"; // Initial theme mode (default: "light")
-  onModeChange?: (mode: "light" | "dark") => void; // Callback when theme changes
+  initialMode?: "light" | "dark" | "white";
+  onModeChange?: (mode: "light" | "dark" | "white") => void;
 };
 ```
 
-**Updated theme input note:** `ShellThemeOptions` still controls only mode (`light` / `dark`).  
-Surface colors are now controlled with CSS variables (see [Styling](#styling)).
+The built-in toggle cycles through `light → dark → white`. Surface colors can be overridden with CSS variables (see [Styling](#styling)).
 
 **Example:**
+
 ```tsx
-const theme: ShellThemeOptions = {
+theme={{
   initialMode: "dark",
-  onModeChange: (mode) => {
-    console.log("Theme changed to:", mode);
-    // Save theme preference
-    localStorage.setItem("theme", mode);
-  },
-};
+  onModeChange: (mode) => localStorage.setItem("theme", mode),
+}}
 ```
 
 #### ShellLinkComponentProps
 
-Props for custom link components.
+Use this to replace the default React Router `<Link>` with your own router's link component.
 
 ```tsx
 type ShellLinkComponentProps = {
-  to?: string;                   // React Router path
-  href?: string;                 // External URL
-  className?: string;            // CSS classes
-  children: ReactNode;           // Link content (required)
-  onClick?: (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void; // Click handler
+  to?: string;
+  href?: string;
+  className?: string;
+  children: ReactNode;
+  onClick?: (event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void;
 };
 ```
 
-**Example:**
+**Example (Next.js):**
+
 ```tsx
-// Custom link component for Next.js
-const CustomLink = ({ to, href, className, children, onClick }: ShellLinkComponentProps) => {
-  if (to) {
-    return (
-      <Link href={to} className={className} onClick={onClick}>
-        {children}
-      </Link>
-    );
-  }
-  return (
-    <a href={href} className={className} onClick={onClick}>
-      {children}
-    </a>
-  );
-};
+import NextLink from "next/link";
+import type { ShellLinkComponentProps } from "@ippis/app-layout-theme";
+
+const CustomLink = ({ to, href, className, children, onClick }: ShellLinkComponentProps) => (
+  <NextLink href={to ?? href ?? "#"} className={className} onClick={onClick}>
+    {children}
+  </NextLink>
+);
+
+<AppShell menus={menus} linkComponent={CustomLink}>
+  ...
+</AppShell>
 ```
+
+---
+
+## DemoBlock
+
+`DemoBlock` is a **demo utility component** used internally by the library's component showcase (`src/main.tsx`). It renders a labelled preview box above a syntax-highlighted code snippet, making it easy to document components side-by-side with their usage code.
+
+> **Important:** `DemoBlock` is not exported from `@ippis/app-layout-theme`. It is a lightweight internal helper. Copy the snippet below directly into your own project if you need the same pattern.
+
+### What it does
+
+```
+┌─────────────────────────────────────┐
+│ Label text                          │
+│ ┌──────────────────────────────┐    │
+│ │  Live component preview       │    │
+│ └──────────────────────────────┘    │
+│ <pre> code snippet </pre>           │
+└─────────────────────────────────────┘
+```
+
+### Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `label` | `string` | Yes | Title shown above the preview box |
+| `code` | `string` | Yes | Code string displayed in the monospace block |
+| `children` | `ReactNode` | Yes | Live component(s) rendered in the preview area |
+
+### Source (copy into your project)
+
+`DemoBlock` depends on a `Code` helper for the syntax block:
+
+```tsx
+// Monospace code block
+const Code = ({ children }: { children: string }) => (
+  <pre className="bg-muted/60 dark:bg-muted/30 border border-border rounded-lg px-4 py-3 text-ds-xs font-mono text-foreground overflow-x-auto whitespace-pre leading-relaxed">
+    <code>{children}</code>
+  </pre>
+);
+
+// Demo + code two-column block
+const DemoBlock = ({
+  label,
+  code,
+  children,
+}: {
+  label: string;
+  code: string;
+  children: React.ReactNode;
+}) => (
+  <div className="space-y-3">
+    <p className="text-ds-sm font-medium text-foreground">{label}</p>
+    <div className="rounded-xl border border-border bg-background p-4">
+      {children}
+    </div>
+    <Code>{code}</Code>
+  </div>
+);
+```
+
+> The Tailwind classes used here (`text-ds-sm`, `text-ds-xs`, `bg-muted/60`, `border-border`, etc.) are part of the library's design-token system. They are available when you have imported `dist/style.css` and have Tailwind configured with the library's `dist/` folder in `content` (see [Configure Tailwind](#2-optional-configure-tailwind)).
+
+### Usage example
+
+```tsx
+import { Button } from "@ippis/app-layout-theme";
+
+// After copying DemoBlock and Code from above:
+
+<DemoBlock
+  label="Primary and secondary buttons"
+  code={`<Button variant="primary">Primary</Button>
+<Button variant="secondary">Secondary</Button>`}
+>
+  <div className="flex gap-2">
+    <Button variant="primary">Primary</Button>
+    <Button variant="secondary">Secondary</Button>
+  </div>
+</DemoBlock>
+```
+
+### Rendering multiple demos in a section
+
+Pair `DemoBlock` with a simple `Section` wrapper to build a full component showcase:
+
+```tsx
+import { Box } from "lucide-react";
+
+const Section = ({
+  id,
+  icon: Icon,
+  title,
+  description,
+  children,
+}: {
+  id: string;
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) => (
+  <section id={id} className="scroll-mt-20 rounded-xl border border-border bg-card overflow-hidden">
+    <div className="flex items-start gap-4 px-6 py-4 border-b border-border bg-muted/20">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
+      </span>
+      <div>
+        <h2 className="text-ds-base font-semibold text-foreground">{title}</h2>
+        <p className="mt-0.5 text-ds-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+    <div className="px-6 py-6 space-y-8">{children}</div>
+  </section>
+);
+
+// Then use them together:
+<Section id="buttons" icon={Box} title="Button" description="Action triggers with multiple variants.">
+  <DemoBlock label="Solid variants" code={`<Button variant="primary">Primary</Button>`}>
+    <Button variant="primary">Primary</Button>
+  </DemoBlock>
+</Section>
+```
+
+---
 
 ## Examples
 
-### Complete Example with All Properties
-
-Here's a comprehensive example showing all available properties:
-
-```tsx
-import { useState } from "react";
-import { AppShell, ShellMenuItem } from "@ippis/app-layout-theme";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Settings, 
-  FileText,
-  Bell,
-  HelpCircle,
-  User,
-  LogOut,
-  BarChart
-} from "lucide-react";
-import { BrowserRouter } from "react-router-dom";
-import { Button } from "@/components/ui/button"; // Adjust import path as needed
-
-function App() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedInstitution, setSelectedInstitution] = useState("1");
-
-  // Menu configuration
-  const menus: ShellMenuItem[] = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      to: "/dashboard",
-      badge: "New",
-    },
-    {
-      id: "users",
-      label: "Users",
-      icon: Users,
-      to: "/users",
-      children: [
-        {
-          id: "users-active",
-          label: "Active Users",
-          to: "/users/active",
-        },
-        {
-          id: "users-pending",
-          label: "Pending",
-          to: "/users/pending",
-          badge: 5,
-        },
-      ],
-    },
-    {
-      id: "documents",
-      label: "Documents",
-      icon: FileText,
-      to: "/documents",
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: Settings,
-      to: "/settings",
-      disabled: false,
-    },
-  ];
-
-  // Institution configuration
-  const institutions = [
-    {
-      id: "1",
-      name: "Ministry of Public Service and Labour",
-      acronym: "MIFOTRA",
-    },
-    {
-      id: "2",
-      name: "Ministry of Finance and Economic Planning",
-      acronym: "MINECOFIN",
-    },
-  ];
-
-  // User configuration
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    avatarUrl: "/avatars/john.jpg",
-    menuItems: [
-      {
-        id: "profile",
-        label: "Profile",
-        icon: User,
-        href: "/profile",
-      },
-      {
-        id: "logout",
-        label: "Log out",
-        icon: LogOut,
-        onSelect: () => {
-          console.log("Logging out...");
-          // Handle logout
-        },
-        danger: true,
-      },
-    ],
-  };
-
-  // Quick actions configuration
-  const quickActions = [
-    {
-      id: "notifications",
-      icon: Bell,
-      label: "Notifications",
-      tooltip: "View notifications",
-      panel: (
-        <div className="p-4 space-y-2">
-          <h3 className="font-semibold mb-2">Notifications</h3>
-          <div className="space-y-2">
-            <div className="p-2 bg-slate-100 dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded">
-              <p className="text-sm">New message received</p>
-              <p className="text-xs text-slate-500">2 minutes ago</p>
-            </div>
-            <div className="p-2 bg-slate-100 dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded">
-              <p className="text-sm">Task assigned to you</p>
-              <p className="text-xs text-slate-500">1 hour ago</p>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "help",
-      icon: HelpCircle,
-      label: "Help",
-      tooltip: "Get help and support",
-      panel: (
-        <div className="p-4">
-          <h3 className="font-semibold mb-2">Help & Support</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Need assistance? Contact our support team or check the documentation.
-          </p>
-          <Button className="mt-4" variant="outline">
-            Contact Support
-          </Button>
-        </div>
-      ),
-      variant: "primary" as const,
-    },
-  ];
-
-  // App launcher items
-  const appLauncherItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      href: "/dashboard",
-    },
-    {
-      id: "analytics",
-      label: "Analytics",
-      icon: BarChart,
-      description: "View analytics",
-      href: "/analytics",
-    },
-  ];
-
-  return (
-    <BrowserRouter>
-      <AppShell
-        // Required props
-        menus={menus}
-        
-        // Basic configuration
-        title="My Application"
-        subtitle="Application Description"
-        logo={<img src="/logo.png" alt="Logo" />}
-        
-        // User configuration
-        user={user}
-        
-        // Search configuration
-        search={{
-          placeholder: "Search modules, actions or pages",
-          value: searchTerm,
-          onChange: setSearchTerm,
-          onSubmit: (value) => {
-            console.log("Searching for:", value);
-            // Perform search
-          },
-          debounceMs: 300,
-        }}
-        showSearch={true}
-        
-        // Institution selector
-        institutions={institutions}
-        selectedInstitutionId={selectedInstitution}
-        onInstitutionChange={(id) => {
-          setSelectedInstitution(id);
-          console.log("Institution changed to:", id);
-        }}
-        institutionPlaceholder="Select institution"
-        showInstitutionSelector={true}
-        
-        // Quick actions
-        quickActions={quickActions}
-        
-        // App launcher
-        appLauncherItems={appLauncherItems}
-        
-        // Custom sidebar content
-        sidebarHeader={
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-                ALT
-              </div>
-              <div>
-                <h2 className="font-semibold text-sm">App Layout Theme</h2>
-                <p className="text-xs text-slate-500">Custom Header</p>
-              </div>
-            </div>
-          </div>
-        }
-        sidebarFooter={
-          <div className="p-4 space-y-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full justify-center gap-2"
-              onClick={() => window.open("https://github.com", "_blank")}
-            >
-              <HelpCircle className="h-4 w-4" />
-              Support
-            </Button>
-          </div>
-        }
-        
-        // Footer configuration
-        footerContent={
-          <footer className="text-sm text-center py-3 text-slate-600 dark:text-slate-400">
-            © 2025 @ippis/app-layout-theme |{" "}
-            <a
-              href="#"
-              className="hover:underline text-blue-600 dark:text-blue-400"
-              onClick={(e) => {
-                e.preventDefault();
-                alert("Privacy policy");
-              }}
-            >
-              Privacy
-            </a>{" "}
-            |{" "}
-            <a
-              href="#"
-              className="hover:underline text-blue-600 dark:text-blue-400"
-              onClick={(e) => {
-                e.preventDefault();
-                alert("Terms of service");
-              }}
-            >
-              Terms
-            </a>
-          </footer>
-        }
-        showFooter={true}
-        
-        // Pagination
-        pagination={{
-          page: currentPage,
-          totalPages: 10,
-          onChange: (page) => {
-            setCurrentPage(page);
-            // Fetch data for new page
-          },
-          label: "Page",
-        }}
-        
-        // Theme configuration
-        theme={{
-          initialMode: "light",
-          onModeChange: (mode) => {
-            console.log("Theme changed to:", mode);
-            localStorage.setItem("theme", mode);
-          },
-        }}
-        
-        // Custom actions
-        actions={
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => alert("Custom action clicked!")}
-          >
-            Quick Action
-          </Button>
-        }
-        
-        // Menu callbacks
-        onMenuSelect={(item) => {
-          console.log("Menu item selected:", item);
-        }}
-        
-        // Styling
-        className="custom-app-shell"
-      >
-        <div className="p-6 space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome to My Application</h1>
-            <p className="text-slate-600 dark:text-slate-400">
-              This is a comprehensive demonstration of all AppShell properties.
-              The AppShell component provides a complete application shell with sidebar,
-              top bar, user menu, search, and more.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-6 bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg shadow border border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                  <LayoutDashboard className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h2 className="text-xl font-semibold">Dashboard</h2>
-              </div>
-              <p className="text-slate-600 dark:text-slate-400">
-                View your application dashboard with key metrics and insights.
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg shadow border border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                  <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-                <h2 className="text-xl font-semibold">User Management</h2>
-              </div>
-              <p className="text-slate-600 dark:text-slate-400">
-                Manage users, roles, and permissions with ease.
-              </p>
-            </div>
-
-            <div className="p-6 bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg shadow border border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <h2 className="text-xl font-semibold">Documents</h2>
-              </div>
-              <p className="text-slate-600 dark:text-slate-400">
-                Access and manage your documents and files.
-              </p>
-            </div>
-          </div>
-
-          <div className="p-6 bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)] rounded-lg shadow border border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]">
-            <h2 className="text-xl font-semibold mb-4">Features Demonstrated</h2>
-            <ul className="space-y-2 text-slate-600 dark:text-slate-400">
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                Sidebar navigation with nested menus and badges
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                Institution selector in the top bar
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                Search functionality with debouncing
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                User menu with custom menu items
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                Quick actions with panels (notifications, help)
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                App launcher menu
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                Pagination controls
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                Light/dark theme toggle
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                Custom sidebar header and footer
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                Custom footer content
-              </li>
-            </ul>
-          </div>
-        </div>
-      </AppShell>
-    </BrowserRouter>
-  );
-}
-
-export default App;
-```
-
-### Basic Usage
+### Basic Setup
 
 ```tsx
 import { AppShell } from "@ippis/app-layout-theme";
+import type { ShellMenuItem } from "@ippis/app-layout-theme";
+import { LayoutDashboard, Settings } from "lucide-react";
 
-<AppShell
-  title="My App"
-  menus={menus}
-  user={{ name: "John Doe", email: "john@example.com" }}
->
-  <div>Your content here</div>
-</AppShell>
-```
+const menus: ShellMenuItem[] = [
+  { id: "home",     label: "Dashboard", icon: LayoutDashboard, to: "/" },
+  { id: "settings", label: "Settings",  icon: Settings,        to: "/settings" },
+];
 
-### With Custom Logo
-
-```tsx
-<AppShell
-  title="My App"
-  logo={<img src="/logo.png" alt="Logo" />}
-  menus={menus}
->
-  <div>Content</div>
-</AppShell>
+export default function App() {
+  return (
+    <AppShell title="My App" menus={menus}>
+      <div className="p-6">Your content here</div>
+    </AppShell>
+  );
+}
 ```
 
 ### With Institution Selector
@@ -995,8 +671,8 @@ import { AppShell } from "@ippis/app-layout-theme";
     { id: "1", name: "Organization 1", acronym: "ORG1" },
     { id: "2", name: "Organization 2", acronym: "ORG2" },
   ]}
-  selectedInstitutionId="1"
-  onInstitutionChange={(id) => console.log("Changed to:", id)}
+  selectedInstitutionId={selectedId}
+  onInstitutionChange={setSelectedId}
 >
   <div>Content</div>
 </AppShell>
@@ -1005,23 +681,24 @@ import { AppShell } from "@ippis/app-layout-theme";
 ### With Search
 
 ```tsx
+const [searchTerm, setSearchTerm] = useState("");
+
 <AppShell
   title="My App"
   menus={menus}
   search={{
-    placeholder: "Search...",
+    placeholder: "Search modules, actions or pages",
     value: searchTerm,
     onChange: setSearchTerm,
-    onSubmit: (value) => {
-      console.log("Searching for:", value);
-    },
+    onSubmit: (value) => console.log("Searching:", value),
+    debounceMs: 300,
   }}
 >
   <div>Content</div>
 </AppShell>
 ```
 
-### With Quick Actions
+### With Quick Actions (e.g. Notifications panel)
 
 ```tsx
 import { Bell, HelpCircle } from "lucide-react";
@@ -1033,16 +710,15 @@ import { Bell, HelpCircle } from "lucide-react";
     {
       id: "notifications",
       icon: Bell,
-      label: "Notifications",
-      tooltip: "View notifications",
+      tooltip: "Notifications",
       panel: <NotificationsPanel />,
     },
     {
       id: "help",
       icon: HelpCircle,
-      label: "Help",
       tooltip: "Get help",
       panel: <HelpPanel />,
+      variant: "primary",
     },
   ]}
 >
@@ -1050,115 +726,230 @@ import { Bell, HelpCircle } from "lucide-react";
 </AppShell>
 ```
 
-### With Pagination
+### Custom Link Component (e.g. for Next.js)
 
 ```tsx
-<AppShell
-  title="My App"
-  menus={menus}
-  pagination={{
-    page: currentPage,
-    totalPages: 10,
-    onChange: (page) => setCurrentPage(page),
-  }}
->
+import NextLink from "next/link";
+import type { ShellLinkComponentProps } from "@ippis/app-layout-theme";
+
+const CustomLink = ({ to, href, className, children, onClick }: ShellLinkComponentProps) => (
+  <NextLink href={to ?? href ?? "#"} className={className} onClick={onClick}>
+    {children}
+  </NextLink>
+);
+
+<AppShell menus={menus} linkComponent={CustomLink}>
   <div>Content</div>
 </AppShell>
 ```
 
-### Custom Link Component
-
-If you're using a different routing library:
+### Complete Example
 
 ```tsx
-import { Link } from "your-router-library";
+import { useState } from "react";
+import { BrowserRouter } from "react-router-dom";
+import { AppShell } from "@ippis/app-layout-theme";
+import type { ShellMenuItem } from "@ippis/app-layout-theme";
+import {
+  LayoutDashboard, Users, Settings, FileText,
+  Bell, HelpCircle, User, LogOut, BarChart,
+} from "lucide-react";
 
-const CustomLink = ({ to, href, className, children, onClick }) => {
-  if (to) {
-    return (
-      <Link to={to} className={className} onClick={onClick}>
-        {children}
-      </Link>
-    );
-  }
+export default function App() {
+  const [searchTerm, setSearchTerm]             = useState("");
+  const [currentPage, setCurrentPage]           = useState(1);
+  const [selectedInstitution, setSelectedInstitution] = useState("1");
+
+  const menus: ShellMenuItem[] = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
+    {
+      id: "users", label: "Users", icon: Users,
+      children: [
+        { id: "users-active",  label: "Active Users", to: "/users/active" },
+        { id: "users-pending", label: "Pending",       to: "/users/pending" },
+      ],
+    },
+    { id: "documents", label: "Documents", icon: FileText,  to: "/documents" },
+    { id: "settings",  label: "Settings",  icon: Settings,  to: "/settings" },
+  ];
+
   return (
-    <a href={href} className={className} onClick={onClick}>
-      {children}
-    </a>
+    <BrowserRouter>
+      <AppShell
+        menus={menus}
+        title="My Application"
+        subtitle="Enterprise Portal"
+        user={{
+          name: "John Doe",
+          email: "john.doe@example.com",
+          menuItems: [
+            { id: "profile", label: "Profile", icon: User,   href: "/profile" },
+            { id: "logout",  label: "Log out", icon: LogOut, onSelect: () => {}, danger: true },
+          ],
+        }}
+        search={{
+          placeholder: "Search modules, actions or pages",
+          value: searchTerm,
+          onChange: setSearchTerm,
+          debounceMs: 300,
+        }}
+        institutions={[
+          { id: "1", name: "Ministry of Public Service and Labour",     acronym: "MIFOTRA"   },
+          { id: "2", name: "Ministry of Finance and Economic Planning", acronym: "MINECOFIN" },
+        ]}
+        selectedInstitutionId={selectedInstitution}
+        onInstitutionChange={setSelectedInstitution}
+        quickActions={[
+          { id: "notifications", icon: Bell,        tooltip: "Notifications", panel: <div className="p-4">Notifications panel</div> },
+          { id: "help",          icon: HelpCircle,  tooltip: "Help",          panel: <div className="p-4">Help panel</div>, variant: "primary" },
+        ]}
+        appLauncherItems={[
+          { id: "analytics", label: "Analytics", icon: BarChart, href: "/analytics" },
+        ]}
+        pagination={{
+          page: currentPage,
+          totalPages: 10,
+          onChange: setCurrentPage,
+          label: "Applications",
+        }}
+        theme={{
+          initialMode: "light",
+          onModeChange: (mode) => localStorage.setItem("theme", mode),
+        }}
+      >
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-4">Welcome</h1>
+          <p className="text-muted-foreground">Your application content goes here.</p>
+        </div>
+      </AppShell>
+    </BrowserRouter>
   );
-};
-
-<AppShell
-  title="My App"
-  menus={menus}
-  linkComponent={CustomLink}
->
-  <div>Content</div>
-</AppShell>
+}
 ```
+
+---
 
 ## Styling
 
-The library uses Tailwind CSS for styling. You can customize the appearance by:
+### 1. Import the Stylesheet
 
-1. **CSS Variables**: Override CSS variables in your global CSS:
+Always import the compiled stylesheet. This provides all component styles and CSS custom properties:
+
+```tsx
+import "@ippis/app-layout-theme/dist/style.css";
+```
+
+### 2. Override CSS Variables
+
+Surface colors and semantic tokens can be overridden in your global CSS:
 
 ```css
 :root {
-  --ds-surface: #ffffff;
+  --ds-surface:         #ffffff;
   --ds-surface-overlay: #ffffff;
-  --ds-text: #172b4d;
-  --ds-border: #E3E4F21F;
-  --ds-link: #669DF1;
+  --ds-text:            #172b4d;
+  --ds-border:          rgba(227, 228, 242, 0.122);
+  --ds-link:            #669DF1;
 }
 
 .dark {
-  --ds-surface: #1F1F21;
-  --ds-surface-overlay: #2B2C2F; /* primary dark surface for cards/tables/modals */
-  --ds-text: #CECFD2;
-  --ds-border: #E3E4F21F;
-  --ds-link: #669DF1;
-
-  --primary: 226.6667 66.0550% 42.7451%;
-  --primary-foreground: 0 0% 100%;
-  /* ... other variables */
+  --ds-surface:         #1F1F21;
+  --ds-surface-overlay: #2B2C2F;   /* cards, tables, modals in dark mode */
+  --ds-text:            #CECFD2;
+  --ds-border:          rgba(227, 228, 242, 0.122);
+  --ds-link:            #669DF1;
 }
 ```
 
-2. **Use the overlay surface in custom content** (recommended for dark mode cards/tables/modals):
+### 3. Dark Mode in Custom Content
+
+Use these patterns inside your own content for consistent dark mode behavior:
 
 ```tsx
+// Elevated surface (cards, tables, modals)
 <div className="bg-white dark:bg-[var(--ds-surface-overlay,#2B2C2F)]" />
+
+// Borders
 <div className="border-slate-200 dark:border-[var(--ds-border,#E3E4F21F)]" />
+
+// Muted text
+<p className="text-slate-500 dark:text-[var(--ds-text,#CECFD2)]/60" />
 ```
 
-3. **Tailwind Config**: Extend the theme in your `tailwind.config.js`:
+### 4. Extend Tailwind Theme (optional)
+
+If you're writing Tailwind-powered components and want first-class access to the design tokens:
 
 ```js
+// tailwind.config.js
 export default {
+  darkMode: ["class"],
   theme: {
     extend: {
       colors: {
-        primary: "hsl(var(--primary))",
-        // ... other colors
+        primary:    { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+        secondary:  { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+        foreground: "hsl(var(--foreground))",
+        background: "hsl(var(--background))",
+        muted:      { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+        border:     "hsl(var(--border))",
+        card:       { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
+      },
+      fontSize: {
+        "ds-xs":   ["var(--text-xs)",   { lineHeight: "var(--leading-xs)"   }],
+        "ds-sm":   ["var(--text-sm)",   { lineHeight: "var(--leading-sm)"   }],
+        "ds-base": ["var(--text-base)", { lineHeight: "var(--leading-base)" }],
+        "ds-lg":   ["var(--text-lg)",   { lineHeight: "var(--leading-lg)"   }],
       },
     },
   },
-}
+};
 ```
+
+---
 
 ## TypeScript
 
-The library is fully typed. Import types as needed:
+All props and types are exported. Import only what you need:
 
 ```tsx
 import type {
+  AppShellProps,
   ShellMenuItem,
   ShellUser,
+  ShellUserMenuItem,
   ShellSearchConfig,
-  AppShellProps,
+  ShellInstitution,
+  ShellThemeMode,
+  ShellThemeOptions,
+  ShellPaginationConfig,
+  ShellLinkComponentProps,
+  QuickAction,
+  AppLauncherItem,
+  LucideIcon,
 } from "@ippis/app-layout-theme";
 ```
+
+### Icons
+
+Lucide icons are re-exported from the library under the `Icons` namespace to avoid name conflicts with same-named UI components (e.g. `Badge`, `Calendar`, `Command`):
+
+```tsx
+import { Icons } from "@ippis/app-layout-theme";
+
+<Icons.Bell className="h-4 w-4" />
+<Icons.User className="h-4 w-4" />
+```
+
+Or import `LucideIcon` for prop typing:
+
+```tsx
+import type { LucideIcon } from "@ippis/app-layout-theme";
+
+type Props = { icon: LucideIcon };
+```
+
+---
 
 ## Browser Support
 
@@ -1167,24 +958,32 @@ import type {
 - Safari (last 2 versions)
 - Edge (last 2 versions)
 
+---
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please open an issue or submit a pull request on the [GitHub repository](https://github.com/gannza/app-layout-theme).
+
+---
 
 ## License
 
 MIT
 
-## Publishing
+---
 
-If you want to publish this library to npm, see [PUBLISHING.md](./PUBLISHING.md) for detailed instructions.
+## Publishing
 
 Quick steps:
 1. Update `package.json` with your repository URLs
 2. Build the library: `npm run build:lib`
-3. Test: `npm publish --dry-run`
+3. Dry run: `npm publish --dry-run`
 4. Publish: `npm publish`
+
+For detailed instructions see [PUBLISHING.md](./PUBLISHING.md).
+
+---
 
 ## Support
 
-For issues and questions, please open an issue on the GitHub repository.
+Open an issue on [GitHub](https://github.com/gannza/app-layout-theme/issues).

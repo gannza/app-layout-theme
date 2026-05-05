@@ -12,19 +12,19 @@ const badgeVariants = cva(
       variant: {
         /* ── Solid ───────────────────────────────── */
         primary:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary-hover",
+          "border-transparent bg-primary text-[#ffffff] hover:bg-primary-hover",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary-hover",
         success:
-          "border-transparent bg-success text-success-foreground hover:bg-success-hover",
+          "border-transparent bg-success text-[#ffffff] hover:bg-success-hover",
         danger:
-          "border-transparent bg-danger text-danger-foreground hover:bg-danger-hover",
+          "border-transparent bg-danger text-[#ffffff] hover:bg-danger-hover",
         warning:
-          "border-transparent bg-warning text-warning-foreground hover:bg-warning-hover",
+          "border-transparent bg-warning text-[#ffffff] hover:bg-warning-hover",
         info:
-          "border-transparent bg-info text-info-foreground hover:bg-info-hover",
+          "border-transparent bg-info text-[#ffffff] hover:bg-info-hover",
         dark:
-          "border-transparent bg-dark text-dark-foreground hover:bg-dark-hover",
+          "border-transparent bg-dark text-[#ffffff] hover:bg-dark-hover",
 
         /* ── Soft / Muted ────────────────────────── */
         "soft-primary":
@@ -34,7 +34,7 @@ const badgeVariants = cva(
         "soft-danger":
           "border-transparent bg-danger-muted text-danger",
         "soft-warning":
-          "border-transparent bg-warning-muted text-warning-foreground",
+          "border-transparent bg-warning-muted text-warning",
         "soft-info":
           "border-transparent bg-info-muted text-info",
 
@@ -48,15 +48,15 @@ const badgeVariants = cva(
         "outline-danger":
           "border border-danger text-danger bg-transparent",
         "outline-warning":
-          "border border-warning text-warning-foreground bg-transparent",
+          "border border-warning text-warning bg-transparent",
         "outline-info":
           "border border-info text-info bg-transparent",
 
         /* ── Legacy aliases ──────────────────────── */
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary-hover",
+          "border-transparent bg-primary text-[#ffffff] hover:bg-primary-hover",
         destructive:
-          "border-transparent bg-danger text-danger-foreground hover:bg-danger-hover",
+          "border-transparent bg-danger text-[#ffffff] hover:bg-danger-hover",
       },
 
       size: {

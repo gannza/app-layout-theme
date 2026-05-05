@@ -276,7 +276,7 @@
     --warning-hover:       40 100% 44%;
     --warning-active:      40 100% 38%;
     --warning-muted:       38 100% 95%;          /* warning-50 #fff6e6 */
-    --warning-foreground:  24 10% 10%;
+    --warning-foreground:  0 0% 100%;
 
     /* ── Info — IPPIS blue (#2685ca) ────────────────────── */
     --info:                205 68% 47%;
@@ -453,7 +453,7 @@
     --warning-hover:       38 90% 62%;
     --warning-active:      38 90% 68%;
     --warning-muted:       38 90% 12%;
-    --warning-foreground:  24 10% 10%;
+    --warning-foreground:  0 0% 100%;
 
     /* ── Info ────────────────────────────────────────────── */
     --info:                199 80% 56%;
