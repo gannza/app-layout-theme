@@ -54,7 +54,8 @@ export type QuickAction = {
 export type AppLauncherItem = {
   id: string;
   label: string;
-  icon?: ComponentType<{ className?: string }>;
+  /** React component or image URL string */
+  icon?: ComponentType<{ className?: string }> | string;
   description?: string;
   href?: string;
   onSelect?: () => void;
@@ -119,6 +120,8 @@ export interface AppShellProps {
   actions?: ReactNode;
   quickActions?: QuickAction[];
   appLauncherItems?: AppLauncherItem[];
+  /** Base URL prepended to module icon filenames from SSO (e.g. "/assets/icons/" or "https://sso.example.com/icons/"). Defaults to ssoBaseUrl. */
+  moduleIconBaseUrl?: string;
   sidebarFooter?: ReactNode;
   institutions?: ShellInstitution[];
   selectedInstitutionId?: string;
@@ -131,5 +134,22 @@ export interface AppShellProps {
   className?: string;
   linkComponent?: ComponentType<ShellLinkComponentProps>;
   onMenuSelect?: (item: ShellMenuItem) => void;
+
+  // ── SSO / Auth (optional) ─────────────────────────────────────────────────
+  /**
+   * Called whenever verify-me resolves (initial load + after institution switch).
+   * Use this to receive the current user and selected entity sector in the consuming app.
+   */
+  onAuthChange?: (payload: import('../auth/types').AuthChangePayload) => void;
+  /** Base URL of the SSO server. When provided, auth is handled automatically. */
+  ssoBaseUrl?: string;
+  /** Service name used in the SSO redirect URL, e.g. "Internship Portal" */
+  serviceName?: string;
+  /** HMAC signing secret (falls back to VITE_API_SIGNING_SECRET env var) */
+  signingSecret?: string;
+  /** App client ID (falls back to VITE_APP_ID env var) */
+  clientId?: string;
+  /** Enable pako decompression of SSO responses (falls back to VITE_API_ENCRYPTION_ENABLED) */
+  encryptionEnabled?: boolean;
 }
 

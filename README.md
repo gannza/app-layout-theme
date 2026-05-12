@@ -1,6 +1,6 @@
 # @ippis/app-layout-theme
 
-A modern, feature-rich React component library built with TypeScript, Tailwind CSS, and Radix UI. This library provides a complete application shell (`AppShell`) with sidebar navigation, top bar, user menu, and more.
+A modern, feature-rich React component library built with TypeScript, Tailwind CSS, and Radix UI. This library provides a complete application shell (`AppShell`) with sidebar navigation, top bar, user menu, and built-in SSO authentication.
 
 ## Features
 
@@ -10,6 +10,7 @@ A modern, feature-rich React component library built with TypeScript, Tailwind C
 - **Accessible**: Built on Radix UI for full accessibility support
 - **TypeScript**: Fully typed for a better developer experience
 - **Customizable**: Highly configurable with props and theming options
+- **SSO Auth**: Built-in HMAC-signed SSO integration with automatic token refresh, institution switching, and logout redirect
 
 ---
 
@@ -18,6 +19,16 @@ A modern, feature-rich React component library built with TypeScript, Tailwind C
 - [Installation](#installation)
 - [Tailwind CSS & shadcn — What You Need to Know](#tailwind-css--shadcn--what-you-need-to-know)
 - [Quick Start](#quick-start)
+- [SSO Authentication](#sso-authentication)
+  - [How it Works](#how-it-works)
+  - [Environment Variables](#environment-variables)
+  - [Minimal Setup](#minimal-setup)
+  - [Auth Props on AppShell](#auth-props-on-appshell)
+  - [What verify-me Returns](#what-verify-me-returns)
+  - [Institution Switching](#institution-switching)
+  - [Auth Hooks](#auth-hooks)
+  - [Auth Type Definitions](#auth-type-definitions)
+  - [Using AuthProvider Standalone](#using-authprovider-standalone)
 - [API Reference](#api-reference)
   - [AppShell Props](#appshell-props)
   - [Type Definitions](#type-definitions)
@@ -59,6 +70,7 @@ Supported versions: React 18+, React Router DOM 6 or 7.
 The library ships a pre-compiled stylesheet (`dist/style.css`) that contains all component styles. If you only use the shell and UI components as-is, you just need to import that file — no Tailwind installation required in your own project.
 
 However, if you want to:
+
 - Use the library's design tokens (e.g. `bg-primary`, `text-foreground`, `text-ds-sm`) inside your own components
 - Override colors via Tailwind config
 - Write Tailwind classes that pick up the library's CSS variable system
@@ -112,10 +124,9 @@ export default {
   ],
   theme: {
     extend: {
-      // Extend with the library's color tokens if needed
       colors: {
-        primary:    "hsl(var(--primary))",
-        secondary:  "hsl(var(--secondary))",
+        primary: "hsl(var(--primary))",
+        secondary: "hsl(var(--secondary))",
         foreground: "hsl(var(--foreground))",
         background: "hsl(var(--background))",
       },
@@ -144,7 +155,7 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );
 ```
 
@@ -157,9 +168,14 @@ import { LayoutDashboard, Users, Settings } from "lucide-react";
 
 function App() {
   const menus: ShellMenuItem[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
-    { id: "users",     label: "Users",     icon: Users,           to: "/users" },
-    { id: "settings",  label: "Settings",  icon: Settings,        to: "/settings" },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      to: "/dashboard",
+    },
+    { id: "users", label: "Users", icon: Users, to: "/users" },
+    { id: "settings", label: "Settings", icon: Settings, to: "/settings" },
   ];
 
   return (
@@ -182,38 +198,332 @@ export default App;
 
 ---
 
+## SSO Authentication
+
+`AppShell` has built-in SSO support powered by RTK Query. Pass `ssoBaseUrl` and `serviceName` to activate it — the shell handles the entire auth lifecycle automatically.
+
+### How it Works
+
+```
+App loads
+   │
+   ▼
+GET /api/auth/verify-me
+   │
+   ├─ 200 ──► Map user + institutions into shell → render app
+   │
+   └─ 401 ──► POST /api/auth/refresh
+                  │
+                  ├─ 200 ──► Retry verify-me → render app
+                  │
+                  └─ 401 ──► clearUser() → redirect to SSO login page
+                             {ssoBaseUrl}signin/?service=…&continue={origin}
+```
+
+When auth is active every request is HMAC-signed with `X-Client-ID`, `X-Timestamp`, and `X-Signature` headers. Responses can optionally be pako-decompressed.
+
+### Environment Variables
+
+Set these in your app's `.env` file. The library reads them at runtime via `import.meta.env`:
+
+```env
+# HMAC signing
+VITE_API_SIGNING_SECRET=your-hmac-secret
+VITE_APP_ID=IPPIS_AUTH
+
+# Optional: enable pako decompression of SSO responses
+VITE_API_ENCRYPTION_ENABLED=true
+```
+
+You can also pass these values as props directly on `AppShell` (props take priority over env vars).
+
+### Minimal Setup
+
+```tsx
+// src/App.tsx
+import { AppShell } from "@ippis/app-layout-theme";
+import type { ShellMenuItem } from "@ippis/app-layout-theme";
+
+const menus: ShellMenuItem[] = [
+  { id: "dashboard", label: "Dashboard", to: "/dashboard" },
+];
+
+export default function App() {
+  return (
+    <AppShell
+      ssoBaseUrl="http://sso.localtest.me:8000/"
+      serviceName="Internship Portal"
+      menus={menus}
+      signingSecret="your-secret"
+      clientId="IPPIS_AUTH"
+      encryptionEnabled={false}
+    >
+      <YourPageContent />
+    </AppShell>
+  );
+}
+```
+
+That is all that is needed. `AppShell` will:
+
+1. Call `GET /api/auth/verify-me` on mount
+2. Populate the top-bar user menu and institution selector from the response
+3. Automatically refresh and retry on `401`
+4. Redirect to the SSO login page on auth failure
+
+### Auth Props on AppShell
+
+| Prop                | Type      | Required | Description                                                                                                                   |
+| ------------------- | --------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `ssoBaseUrl`        | `string`  | —        | Base URL of the SSO server, e.g. `http://sso.localtest.me:8000/`. **Enables auth when provided together with `serviceName`.** |
+| `serviceName`       | `string`  | —        | Human-readable service name passed as the `service` query param on the SSO redirect, e.g. `"Internship Portal"`.              |
+| `signingSecret`     | `string`  | —        | HMAC secret used to sign requests. Falls back to `VITE_API_SIGNING_SECRET`.                                                   |
+| `clientId`          | `string`  | —        | App identifier sent as `X-Client-ID`. Falls back to `VITE_APP_ID`.                                                            |
+| `encryptionEnabled` | `boolean` | —        | Decompress pako-encoded SSO responses. Falls back to `VITE_API_ENCRYPTION_ENABLED === "true"`.                                |
+
+> Both `ssoBaseUrl` **and** `serviceName` must be present to activate auth. If only one is provided the shell falls back to manual props (`user`, `institutions`, etc.).
+
+### What verify-me Returns
+
+The `GET /api/auth/verify-me` endpoint returns a `VerifyMeResponse` object. The library maps it automatically:
+
+| verify-me field                                | Shell output               |
+| ---------------------------------------------- | -------------------------- |
+| `firstName` + `lastName`                       | `ShellUser.name`           |
+| `email`                                        | `ShellUser.email`          |
+| `selectedEntitySector.name`                    | `ShellUser.subtitle`       |
+| `assignedEntitySectors[].id`                   | `ShellInstitution.id`      |
+| `assignedEntitySectors[].name`                 | `ShellInstitution.name`    |
+| acronym extracted from `name` e.g. `(MIFOTRA)` | `ShellInstitution.acronym` |
+| `selectedEntitySector.id`                      | `selectedInstitutionId`    |
+
+A **"Sign out"** menu item is injected automatically into the user menu. Clicking it calls `POST /api/auth/logout` then redirects to the SSO login page.
+
+### Institution Switching
+
+When the user selects a different institution from the top-bar selector, the library calls:
+
+```
+PUT /api/auth/switch-entity-sector?selectedEntitySectorId={id}
+```
+
+The response updates the shell state immediately — no page reload is required.
+
+You can also hook into the switch event at the `AppShell` level:
+
+```tsx
+<AppShell
+  ssoBaseUrl="http://sso.localtest.me:8000/"
+  serviceName="Internship Portal"
+  menus={menus}
+  onInstitutionChange={(id) => {
+    // Called after the library switches the entity sector
+    console.log("Switched to:", id);
+  }}
+>
+  ...
+</AppShell>
+```
+
+### Auth Hooks
+
+When you need to access auth state deep in your component tree, import the hooks. They must be rendered inside an `AppShell` that has `ssoBaseUrl` set (or inside a standalone `AuthProvider`).
+
+```tsx
+import {
+  useAuthUser,
+  useAuthInstitutions,
+  useSelectedInstitutionId,
+  useRawSsoUser,
+  useAuthLoading,
+  useSsoLogout,
+  useSwitchInstitution,
+} from "@ippis/app-layout-theme";
+```
+
+| Hook                         | Returns                    | Description                                                                                                    |
+| ---------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `useAuthUser()`              | `ShellUser \| null`        | Mapped user object ready for the shell. `null` while loading or unauthenticated.                               |
+| `useAuthInstitutions()`      | `ShellInstitution[]`       | List of all assigned entity sectors mapped to `ShellInstitution`.                                              |
+| `useSelectedInstitutionId()` | `string \| null`           | ID of the currently active entity sector.                                                                      |
+| `useRawSsoUser()`            | `VerifyMeResponse \| null` | Full unmodified response from `verify-me`. Useful when you need `permissions`, `modules`, or `budgetEntities`. |
+| `useAuthLoading()`           | `boolean`                  | `true` while the initial `verify-me` call is in-flight.                                                        |
+| `useSsoLogout()`             | `() => void`               | Callback that calls logout API then redirects to SSO.                                                          |
+| `useSwitchInstitution()`     | `(id: string) => void`     | Callback that calls the switch-entity-sector API.                                                              |
+
+**Example — guard a route based on a permission:**
+
+```tsx
+import { useRawSsoUser } from "@ippis/app-layout-theme";
+
+export function RecruitmentPage() {
+  const ssoUser = useRawSsoUser();
+  const selected = ssoUser?.selectedEntitySector;
+
+  if (!selected?.permissions.CAN_ACCESS_RECRUITMENT_MODULE) {
+    return <p>You do not have access to this module.</p>;
+  }
+
+  return <RecruitmentContent />;
+}
+```
+
+**Example — show a logout button anywhere:**
+
+```tsx
+import { useSsoLogout } from "@ippis/app-layout-theme";
+
+export function LogoutButton() {
+  const logout = useSsoLogout();
+  return <button onClick={logout}>Sign out</button>;
+}
+```
+
+### Auth Type Definitions
+
+```tsx
+import type {
+  VerifyMeResponse,
+  AssignedEntitySector,
+  SelectedBudgetEntity,
+  AppModule,
+  BudgetEntity,
+  Role,
+  SsoAuthConfig,
+  SigningConfig,
+} from "@ippis/app-layout-theme";
+```
+
+#### VerifyMeResponse
+
+Full shape of the `/api/auth/verify-me` response:
+
+```tsx
+interface VerifyMeResponse {
+  userId: string;
+  lastName: string;
+  firstName: string;
+  email: string;
+  phoneNumber: string;
+  nid: string;
+  passportNumber: string | null;
+  rssbNumber: string;
+  dn: string;
+  assignedEntitySectors: AssignedEntitySector[];
+  selectedEntitySector: AssignedEntitySector | null;
+}
+```
+
+#### AssignedEntitySector
+
+Each item in `assignedEntitySectors` represents one institution/entity the user belongs to:
+
+```tsx
+interface AssignedEntitySector {
+  id: string; // Used as ShellInstitution.id and for switching
+  sectorId: number;
+  sector: string; // e.g. "Ministry", "Agency", "Board"
+  name: string; // e.g. "Ministry of Public Service (MIFOTRA) / Ministry"
+  entityId: string;
+  unitId: string;
+  isLocked: boolean;
+  canUseTrainingModule: boolean;
+  permissions: Record<string, boolean>; // e.g. { CAN_ACCESS_RECRUITMENT_MODULE: true }
+  budgetEntities: BudgetEntity[];
+  selectedBudgetEntity: SelectedBudgetEntity[];
+}
+```
+
+#### SsoAuthConfig
+
+Props accepted by both `AppShell` and the standalone `AuthProvider`:
+
+```tsx
+interface SsoAuthConfig {
+  ssoBaseUrl: string;
+  serviceName: string;
+  signingSecret?: string;
+  clientId?: string;
+  encryptionEnabled?: boolean;
+}
+```
+
+### Using AuthProvider Standalone
+
+If you want SSO auth without `AppShell` — or need to wrap a custom layout — use `AuthProvider` directly:
+
+```tsx
+import {
+  AuthProvider,
+  useAuthUser,
+  useRawSsoUser,
+} from "@ippis/app-layout-theme";
+
+function Root() {
+  return (
+    <AuthProvider
+      ssoBaseUrl="http://sso.localtest.me:8000/"
+      serviceName="Internship Portal"
+    >
+      <MyCustomLayout />
+    </AuthProvider>
+  );
+}
+
+function MyCustomLayout() {
+  const user = useAuthUser(); // ShellUser | null
+  const raw = useRawSsoUser(); // VerifyMeResponse | null
+
+  return (
+    <div>
+      <header>{user?.name}</header>
+      <main>
+        {raw?.selectedEntitySector?.permissions.IS_ADMIN && <AdminPanel />}
+      </main>
+    </div>
+  );
+}
+```
+
+---
+
 ## API Reference
 
 ### AppShell Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `children` | `ReactNode` | Yes | — | Main content area rendered inside the shell |
-| `menus` | `ShellMenuItem[]` | Yes | — | Array of menu items for sidebar navigation |
-| `title` | `string` | No | — | Application title in the sidebar header |
-| `subtitle` | `string` | No | — | Application subtitle below the title |
-| `logo` | `ReactNode` | No | — | Custom logo (image, SVG, or React component) |
-| `user` | `ShellUser` | No | — | User info for the user menu in the top bar |
-| `search` | `ShellSearchConfig` | No | — | Search configuration; enables the search bar when provided |
-| `showSearch` | `boolean` | No | `true` | Show or hide the search bar |
-| `institutions` | `ShellInstitution[]` | No | — | Institutions for the institution selector dropdown |
-| `selectedInstitutionId` | `string` | No | — | ID of the currently selected institution |
-| `onInstitutionChange` | `(id: string) => void` | No | — | Callback when the user selects a different institution |
-| `institutionPlaceholder` | `string` | No | — | Placeholder text when no institution is selected |
-| `showInstitutionSelector` | `boolean` | No | `true` | Show or hide the institution selector |
-| `quickActions` | `QuickAction[]` | No | — | Quick action buttons displayed in the top bar |
-| `appLauncherItems` | `AppLauncherItem[]` | No | — | Items for the app-launcher menu |
-| `sidebarHeader` | `ReactNode` | No | — | Custom sidebar header (replaces the default title/logo block) |
-| `sidebarFooter` | `ReactNode` | No | — | Custom content at the bottom of the sidebar |
-| `footer` | `ReactNode` | No | — | Legacy footer slot; prefer `footerContent` |
-| `footerContent` | `ReactNode` | No | — | Replaces the default copyright footer |
-| `showFooter` | `boolean` | No | `true` | Show or hide the bottom footer bar |
-| `pagination` | `ShellPaginationConfig` | No | — | Pagination controls rendered above the footer |
-| `theme` | `ShellThemeOptions` | No | — | Theme mode configuration |
-| `actions` | `ReactNode` | No | — | Custom action area in the top bar |
-| `linkComponent` | `ComponentType<ShellLinkComponentProps>` | No | — | Custom link component (useful for non-React Router setups) |
-| `onMenuSelect` | `(item: ShellMenuItem) => void` | No | — | Callback when a menu item is clicked |
-| `className` | `string` | No | — | Additional CSS classes on the root container |
+| Prop                      | Type                                     | Required | Default                       | Description                                                                         |
+| ------------------------- | ---------------------------------------- | -------- | ----------------------------- | ----------------------------------------------------------------------------------- |
+| `children`                | `ReactNode`                              | Yes      | —                             | Main content area rendered inside the shell                                         |
+| `menus`                   | `ShellMenuItem[]`                        | Yes      | —                             | Array of menu items for sidebar navigation                                          |
+| `title`                   | `string`                                 | No       | —                             | Application title in the sidebar header                                             |
+| `subtitle`                | `string`                                 | No       | —                             | Application subtitle below the title                                                |
+| `logo`                    | `ReactNode`                              | No       | —                             | Custom logo (image, SVG, or React component)                                        |
+| `user`                    | `ShellUser`                              | No       | —                             | User info for the user menu. Overridden by SSO data when `ssoBaseUrl` is set.       |
+| `search`                  | `ShellSearchConfig`                      | No       | —                             | Search configuration; enables the search bar when provided                          |
+| `showSearch`              | `boolean`                                | No       | `true`                        | Show or hide the search bar                                                         |
+| `institutions`            | `ShellInstitution[]`                     | No       | —                             | Institution list. Overridden by SSO data when `ssoBaseUrl` is set.                  |
+| `selectedInstitutionId`   | `string`                                 | No       | —                             | Active institution ID. Overridden by SSO data.                                      |
+| `onInstitutionChange`     | `(id: string) => void`                   | No       | —                             | Called after institution switch (also fires the SSO switch API when auth is active) |
+| `institutionPlaceholder`  | `string`                                 | No       | —                             | Placeholder text when no institution is selected                                    |
+| `showInstitutionSelector` | `boolean`                                | No       | `true`                        | Show or hide the institution selector                                               |
+| `quickActions`            | `QuickAction[]`                          | No       | —                             | Quick action buttons displayed in the top bar                                       |
+| `appLauncherItems`        | `AppLauncherItem[]`                      | No       | —                             | Items for the app-launcher menu                                                     |
+| `sidebarHeader`           | `ReactNode`                              | No       | —                             | Custom sidebar header (replaces the default title/logo block)                       |
+| `sidebarFooter`           | `ReactNode`                              | No       | —                             | Custom content at the bottom of the sidebar                                         |
+| `footer`                  | `ReactNode`                              | No       | —                             | Legacy footer slot; prefer `footerContent`                                          |
+| `footerContent`           | `ReactNode`                              | No       | —                             | Replaces the default copyright footer                                               |
+| `showFooter`              | `boolean`                                | No       | `true`                        | Show or hide the bottom footer bar                                                  |
+| `pagination`              | `ShellPaginationConfig`                  | No       | —                             | Pagination controls rendered above the footer                                       |
+| `theme`                   | `ShellThemeOptions`                      | No       | —                             | Theme mode configuration                                                            |
+| `actions`                 | `ReactNode`                              | No       | —                             | Custom action area in the top bar                                                   |
+| `linkComponent`           | `ComponentType<ShellLinkComponentProps>` | No       | —                             | Custom link component (useful for non-React Router setups)                          |
+| `onMenuSelect`            | `(item: ShellMenuItem) => void`          | No       | —                             | Callback when a menu item is clicked                                                |
+| `className`               | `string`                                 | No       | —                             | Additional CSS classes on the root container                                        |
+| `ssoBaseUrl`              | `string`                                 | No       | —                             | SSO base URL. **Activates built-in auth when set with `serviceName`.**              |
+| `serviceName`             | `string`                                 | No       | —                             | SSO service name used in the login redirect URL                                     |
+| `signingSecret`           | `string`                                 | No       | `VITE_API_SIGNING_SECRET`     | HMAC signing secret. Falls back to env var.                                         |
+| `clientId`                | `string`                                 | No       | `VITE_APP_ID`                 | App client ID sent as `X-Client-ID`. Falls back to env var.                         |
+| `encryptionEnabled`       | `boolean`                                | No       | `VITE_API_ENCRYPTION_ENABLED` | Enable pako decompression of SSO responses. Falls back to env var.                  |
 
 ---
 
@@ -229,12 +539,12 @@ type ShellMenuItem = {
   label: string;
   description?: string;
   icon?: ComponentType<{ className?: string }>;
-  to?: string;                    // React Router path
-  href?: string;                  // External link
+  to?: string; // React Router path
+  href?: string; // External link
   onSelect?: () => void;
   badge?: ReactNode;
   disabled?: boolean;
-  children?: ShellMenuItem[];     // Nested sub-menu items
+  children?: ShellMenuItem[]; // Nested sub-menu items
   meta?: Record<string, unknown>;
 };
 ```
@@ -243,14 +553,19 @@ type ShellMenuItem = {
 
 ```tsx
 const menus: ShellMenuItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    to: "/dashboard",
+  },
   {
     id: "settings",
     label: "Settings",
     icon: Settings,
     children: [
-      { id: "settings-profile", label: "Profile",  to: "/settings/profile" },
-      { id: "settings-account", label: "Account",  to: "/settings/account" },
+      { id: "settings-profile", label: "Profile", to: "/settings/profile" },
+      { id: "settings-account", label: "Account", to: "/settings/account" },
     ],
   },
 ];
@@ -277,8 +592,14 @@ const user: ShellUser = {
   email: "john.doe@example.com",
   avatarUrl: "/avatars/john.jpg",
   menuItems: [
-    { id: "profile", label: "Profile",  icon: User,   href: "/profile" },
-    { id: "logout",  label: "Log out",  icon: LogOut, onSelect: handleLogout, danger: true },
+    { id: "profile", label: "Profile", icon: User, href: "/profile" },
+    {
+      id: "logout",
+      label: "Log out",
+      icon: LogOut,
+      onSelect: handleLogout,
+      danger: true,
+    },
   ],
 };
 ```
@@ -293,7 +614,7 @@ type ShellUserMenuItem = {
   description?: string;
   href?: string;
   onSelect?: () => void;
-  danger?: boolean;               // Renders in red; use for destructive actions
+  danger?: boolean; // Renders in red; use for destructive actions
 };
 ```
 
@@ -333,15 +654,6 @@ type ShellInstitution = {
 };
 ```
 
-**Example:**
-
-```tsx
-const institutions: ShellInstitution[] = [
-  { id: "1", name: "Ministry of Public Service and Labour",       acronym: "MIFOTRA"   },
-  { id: "2", name: "Ministry of Finance and Economic Planning",   acronym: "MINECOFIN" },
-];
-```
-
 #### QuickAction
 
 ```tsx
@@ -351,7 +663,7 @@ type QuickAction = {
   label?: string;
   tooltip?: string;
   onSelect?: () => void;
-  panel?: ReactNode;              // Slide-out panel shown when the action is clicked
+  panel?: ReactNode; // Slide-out panel shown when the action is clicked
   variant?: "default" | "primary";
 };
 ```
@@ -456,7 +768,9 @@ export const ApplicationsScreen = () => {
     }
   };
 
-  useEffect(() => { fetchApplications(); }, [page, pageSize]);
+  useEffect(() => {
+    fetchApplications();
+  }, [page, pageSize]);
 
   return <ApplicationsTable data={rows} loading={isLoading} />;
 };
@@ -472,15 +786,6 @@ type ShellThemeOptions = {
 ```
 
 The built-in toggle cycles through `light → dark → white`. Surface colors can be overridden with CSS variables (see [Styling](#styling)).
-
-**Example:**
-
-```tsx
-theme={{
-  initialMode: "dark",
-  onModeChange: (mode) => localStorage.setItem("theme", mode),
-}}
-```
 
 #### ShellLinkComponentProps
 
@@ -502,7 +807,13 @@ type ShellLinkComponentProps = {
 import NextLink from "next/link";
 import type { ShellLinkComponentProps } from "@ippis/app-layout-theme";
 
-const CustomLink = ({ to, href, className, children, onClick }: ShellLinkComponentProps) => (
+const CustomLink = ({
+  to,
+  href,
+  className,
+  children,
+  onClick,
+}: ShellLinkComponentProps) => (
   <NextLink href={to ?? href ?? "#"} className={className} onClick={onClick}>
     {children}
   </NextLink>
@@ -510,7 +821,7 @@ const CustomLink = ({ to, href, className, children, onClick }: ShellLinkCompone
 
 <AppShell menus={menus} linkComponent={CustomLink}>
   ...
-</AppShell>
+</AppShell>;
 ```
 
 ---
@@ -519,7 +830,7 @@ const CustomLink = ({ to, href, className, children, onClick }: ShellLinkCompone
 
 `DemoBlock` is a **demo utility component** used internally by the library's component showcase (`src/main.tsx`). It renders a labelled preview box above a syntax-highlighted code snippet, making it easy to document components side-by-side with their usage code.
 
-> **Important:** `DemoBlock` is not exported from `@ippis/app-layout-theme`. It is a lightweight internal helper. Copy the snippet below directly into your own project if you need the same pattern.
+> **Important:** `DemoBlock` is not exported from `@ippis/app-layout-theme`. Copy the snippet below directly into your own project if you need the same pattern.
 
 ### What it does
 
@@ -535,11 +846,11 @@ const CustomLink = ({ to, href, className, children, onClick }: ShellLinkCompone
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `label` | `string` | Yes | Title shown above the preview box |
-| `code` | `string` | Yes | Code string displayed in the monospace block |
-| `children` | `ReactNode` | Yes | Live component(s) rendered in the preview area |
+| Prop       | Type        | Required | Description                                    |
+| ---------- | ----------- | -------- | ---------------------------------------------- |
+| `label`    | `string`    | Yes      | Title shown above the preview box              |
+| `code`     | `string`    | Yes      | Code string displayed in the monospace block   |
+| `children` | `ReactNode` | Yes      | Live component(s) rendered in the preview area |
 
 ### Source (copy into your project)
 
@@ -591,7 +902,7 @@ import { Button } from "@ippis/app-layout-theme";
     <Button variant="primary">Primary</Button>
     <Button variant="secondary">Secondary</Button>
   </div>
-</DemoBlock>
+</DemoBlock>;
 ```
 
 ### Rendering multiple demos in a section
@@ -614,7 +925,10 @@ const Section = ({
   description: string;
   children: React.ReactNode;
 }) => (
-  <section id={id} className="scroll-mt-20 rounded-xl border border-border bg-card overflow-hidden">
+  <section
+    id={id}
+    className="scroll-mt-20 rounded-xl border border-border bg-card overflow-hidden"
+  >
     <div className="flex items-start gap-4 px-6 py-4 border-b border-border bg-muted/20">
       <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
         <Icon className="h-4 w-4" />
@@ -629,18 +943,26 @@ const Section = ({
 );
 
 // Then use them together:
-<Section id="buttons" icon={Box} title="Button" description="Action triggers with multiple variants.">
-  <DemoBlock label="Solid variants" code={`<Button variant="primary">Primary</Button>`}>
+<Section
+  id="buttons"
+  icon={Box}
+  title="Button"
+  description="Action triggers with multiple variants."
+>
+  <DemoBlock
+    label="Solid variants"
+    code={`<Button variant="primary">Primary</Button>`}
+  >
     <Button variant="primary">Primary</Button>
   </DemoBlock>
-</Section>
+</Section>;
 ```
 
 ---
 
 ## Examples
 
-### Basic Setup
+### Basic Setup (no auth)
 
 ```tsx
 import { AppShell } from "@ippis/app-layout-theme";
@@ -648,8 +970,8 @@ import type { ShellMenuItem } from "@ippis/app-layout-theme";
 import { LayoutDashboard, Settings } from "lucide-react";
 
 const menus: ShellMenuItem[] = [
-  { id: "home",     label: "Dashboard", icon: LayoutDashboard, to: "/" },
-  { id: "settings", label: "Settings",  icon: Settings,        to: "/settings" },
+  { id: "home", label: "Dashboard", icon: LayoutDashboard, to: "/" },
+  { id: "settings", label: "Settings", icon: Settings, to: "/settings" },
 ];
 
 export default function App() {
@@ -661,7 +983,81 @@ export default function App() {
 }
 ```
 
-### With Institution Selector
+### With SSO Auth (recommended)
+
+```tsx
+// .env
+// VITE_API_SIGNING_SECRET=your-secret
+// VITE_APP_ID=IPPIS_AUTH
+
+import { AppShell } from "@ippis/app-layout-theme";
+import type { ShellMenuItem } from "@ippis/app-layout-theme";
+
+const menus: ShellMenuItem[] = [
+  { id: "dashboard", label: "Dashboard", to: "/dashboard" },
+  { id: "settings", label: "Settings", to: "/settings" },
+];
+
+export default function App() {
+  return (
+    <AppShell
+      ssoBaseUrl="http://sso.localtest.me:8000/"
+      serviceName="Internship Portal"
+      menus={menus}
+    >
+      <div className="p-6">
+        Content — user and institutions are loaded from SSO
+      </div>
+    </AppShell>
+  );
+}
+```
+
+### Accessing Permissions Inside a Page
+
+```tsx
+import { useRawSsoUser, useAuthLoading } from "@ippis/app-layout-theme";
+
+export function RecruitmentPage() {
+  const ssoUser = useRawSsoUser();
+  const isLoading = useAuthLoading();
+
+  if (isLoading) return <Spinner />;
+
+  const canAccess =
+    ssoUser?.selectedEntitySector?.permissions.CAN_ACCESS_RECRUITMENT_MODULE;
+
+  if (!canAccess) {
+    return <p>You do not have access to this module.</p>;
+  }
+
+  return <RecruitmentContent />;
+}
+```
+
+### Accessing Available Modules
+
+```tsx
+import { useRawSsoUser } from "@ippis/app-layout-theme";
+
+export function ModuleList() {
+  const ssoUser = useRawSsoUser();
+  const modules =
+    ssoUser?.selectedEntitySector?.selectedBudgetEntity[0]?.modules ?? [];
+
+  return (
+    <ul>
+      {modules.map((mod) => (
+        <li key={mod.moduleId}>
+          <a href={mod.to}>{mod.fullName}</a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### With Institution Selector (manual, no SSO)
 
 ```tsx
 <AppShell
@@ -695,10 +1091,10 @@ const [searchTerm, setSearchTerm] = useState("");
   }}
 >
   <div>Content</div>
-</AppShell>
+</AppShell>;
 ```
 
-### With Quick Actions (e.g. Notifications panel)
+### With Quick Actions
 
 ```tsx
 import { Bell, HelpCircle } from "lucide-react";
@@ -723,7 +1119,7 @@ import { Bell, HelpCircle } from "lucide-react";
   ]}
 >
   <div>Content</div>
-</AppShell>
+</AppShell>;
 ```
 
 ### Custom Link Component (e.g. for Next.js)
@@ -732,7 +1128,13 @@ import { Bell, HelpCircle } from "lucide-react";
 import NextLink from "next/link";
 import type { ShellLinkComponentProps } from "@ippis/app-layout-theme";
 
-const CustomLink = ({ to, href, className, children, onClick }: ShellLinkComponentProps) => (
+const CustomLink = ({
+  to,
+  href,
+  className,
+  children,
+  onClick,
+}: ShellLinkComponentProps) => (
   <NextLink href={to ?? href ?? "#"} className={className} onClick={onClick}>
     {children}
   </NextLink>
@@ -740,78 +1142,77 @@ const CustomLink = ({ to, href, className, children, onClick }: ShellLinkCompone
 
 <AppShell menus={menus} linkComponent={CustomLink}>
   <div>Content</div>
-</AppShell>
+</AppShell>;
 ```
 
-### Complete Example
+### Complete Example with SSO
 
 ```tsx
-import { useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { AppShell } from "@ippis/app-layout-theme";
 import type { ShellMenuItem } from "@ippis/app-layout-theme";
 import {
-  LayoutDashboard, Users, Settings, FileText,
-  Bell, HelpCircle, User, LogOut, BarChart,
+  LayoutDashboard,
+  Users,
+  Settings,
+  FileText,
+  Bell,
+  HelpCircle,
 } from "lucide-react";
 
+const menus: ShellMenuItem[] = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    to: "/dashboard",
+  },
+  {
+    id: "users",
+    label: "Users",
+    icon: Users,
+    children: [
+      { id: "users-active", label: "Active Users", to: "/users/active" },
+      { id: "users-pending", label: "Pending", to: "/users/pending" },
+    ],
+  },
+  { id: "documents", label: "Documents", icon: FileText, to: "/documents" },
+  { id: "settings", label: "Settings", icon: Settings, to: "/settings" },
+];
+
 export default function App() {
-  const [searchTerm, setSearchTerm]             = useState("");
-  const [currentPage, setCurrentPage]           = useState(1);
-  const [selectedInstitution, setSelectedInstitution] = useState("1");
-
-  const menus: ShellMenuItem[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
-    {
-      id: "users", label: "Users", icon: Users,
-      children: [
-        { id: "users-active",  label: "Active Users", to: "/users/active" },
-        { id: "users-pending", label: "Pending",       to: "/users/pending" },
-      ],
-    },
-    { id: "documents", label: "Documents", icon: FileText,  to: "/documents" },
-    { id: "settings",  label: "Settings",  icon: Settings,  to: "/settings" },
-  ];
-
   return (
     <BrowserRouter>
       <AppShell
+        // SSO — user, institutions, and logout are handled automatically
+        ssoBaseUrl="http://sso.localtest.me:8000/"
+        serviceName="Internship Portal"
+        // Layout
         menus={menus}
-        title="My Application"
-        subtitle="Enterprise Portal"
-        user={{
-          name: "John Doe",
-          email: "john.doe@example.com",
-          menuItems: [
-            { id: "profile", label: "Profile", icon: User,   href: "/profile" },
-            { id: "logout",  label: "Log out", icon: LogOut, onSelect: () => {}, danger: true },
-          ],
-        }}
+        title="IPPIS"
+        subtitle="Integrated Personnel and Payroll Information System"
+        // Search
         search={{
           placeholder: "Search modules, actions or pages",
-          value: searchTerm,
-          onChange: setSearchTerm,
           debounceMs: 300,
         }}
-        institutions={[
-          { id: "1", name: "Ministry of Public Service and Labour",     acronym: "MIFOTRA"   },
-          { id: "2", name: "Ministry of Finance and Economic Planning", acronym: "MINECOFIN" },
-        ]}
-        selectedInstitutionId={selectedInstitution}
-        onInstitutionChange={setSelectedInstitution}
+        // Quick actions
         quickActions={[
-          { id: "notifications", icon: Bell,        tooltip: "Notifications", panel: <div className="p-4">Notifications panel</div> },
-          { id: "help",          icon: HelpCircle,  tooltip: "Help",          panel: <div className="p-4">Help panel</div>, variant: "primary" },
+          {
+            id: "notifications",
+            icon: Bell,
+            tooltip: "Notifications",
+            panel: <NotificationsPanel />,
+          },
+          {
+            id: "help",
+            icon: HelpCircle,
+            tooltip: "Help",
+            panel: <HelpPanel />,
+            variant: "primary",
+          },
         ]}
-        appLauncherItems={[
-          { id: "analytics", label: "Analytics", icon: BarChart, href: "/analytics" },
-        ]}
-        pagination={{
-          page: currentPage,
-          totalPages: 10,
-          onChange: setCurrentPage,
-          label: "Applications",
-        }}
+        // Theme
         theme={{
           initialMode: "light",
           onModeChange: (mode) => localStorage.setItem("theme", mode),
@@ -819,7 +1220,9 @@ export default function App() {
       >
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-4">Welcome</h1>
-          <p className="text-muted-foreground">Your application content goes here.</p>
+          <p className="text-muted-foreground">
+            Your application content goes here.
+          </p>
         </div>
       </AppShell>
     </BrowserRouter>
@@ -845,19 +1248,19 @@ Surface colors and semantic tokens can be overridden in your global CSS:
 
 ```css
 :root {
-  --ds-surface:         #ffffff;
+  --ds-surface: #ffffff;
   --ds-surface-overlay: #ffffff;
-  --ds-text:            #172b4d;
-  --ds-border:          rgba(227, 228, 242, 0.122);
-  --ds-link:            #669DF1;
+  --ds-text: #172b4d;
+  --ds-border: rgba(227, 228, 242, 0.122);
+  --ds-link: #669df1;
 }
 
 .dark {
-  --ds-surface:         #1F1F21;
-  --ds-surface-overlay: #2B2C2F;   /* cards, tables, modals in dark mode */
-  --ds-text:            #CECFD2;
-  --ds-border:          rgba(227, 228, 242, 0.122);
-  --ds-link:            #669DF1;
+  --ds-surface: #1f1f21;
+  --ds-surface-overlay: #2b2c2f; /* cards, tables, modals in dark mode */
+  --ds-text: #cecfd2;
+  --ds-border: rgba(227, 228, 242, 0.122);
+  --ds-link: #669df1;
 }
 ```
 
@@ -887,19 +1290,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary:    { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
-        secondary:  { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
         foreground: "hsl(var(--foreground))",
         background: "hsl(var(--background))",
-        muted:      { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
-        border:     "hsl(var(--border))",
-        card:       { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        border: "hsl(var(--border))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
       },
       fontSize: {
-        "ds-xs":   ["var(--text-xs)",   { lineHeight: "var(--leading-xs)"   }],
-        "ds-sm":   ["var(--text-sm)",   { lineHeight: "var(--leading-sm)"   }],
+        "ds-xs": ["var(--text-xs)", { lineHeight: "var(--leading-xs)" }],
+        "ds-sm": ["var(--text-sm)", { lineHeight: "var(--leading-sm)" }],
         "ds-base": ["var(--text-base)", { lineHeight: "var(--leading-base)" }],
-        "ds-lg":   ["var(--text-lg)",   { lineHeight: "var(--leading-lg)"   }],
+        "ds-lg": ["var(--text-lg)", { lineHeight: "var(--leading-lg)" }],
       },
     },
   },
@@ -914,6 +1329,7 @@ All props and types are exported. Import only what you need:
 
 ```tsx
 import type {
+  // Shell
   AppShellProps,
   ShellMenuItem,
   ShellUser,
@@ -926,13 +1342,20 @@ import type {
   ShellLinkComponentProps,
   QuickAction,
   AppLauncherItem,
+  // SSO Auth
+  SsoAuthConfig,
+  VerifyMeResponse,
+  AssignedEntitySector,
+  SelectedBudgetEntity,
+  AppModule,
+  // Icons
   LucideIcon,
 } from "@ippis/app-layout-theme";
 ```
 
 ### Icons
 
-Lucide icons are re-exported from the library under the `Icons` namespace to avoid name conflicts with same-named UI components (e.g. `Badge`, `Calendar`, `Command`):
+Lucide icons are re-exported under the `Icons` namespace to avoid name conflicts with same-named UI components (e.g. `Badge`, `Calendar`, `Command`):
 
 ```tsx
 import { Icons } from "@ippis/app-layout-theme";
@@ -958,6 +1381,8 @@ type Props = { icon: LucideIcon };
 - Safari (last 2 versions)
 - Edge (last 2 versions)
 
+> The HMAC signing uses the [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto) which requires a secure context (HTTPS or localhost).
+
 ---
 
 ## Contributing
@@ -975,6 +1400,7 @@ MIT
 ## Publishing
 
 Quick steps:
+
 1. Update `package.json` with your repository URLs
 2. Build the library: `npm run build:lib`
 3. Dry run: `npm publish --dry-run`

@@ -4,6 +4,9 @@ import "../index.css";
 // ── Shell components ──────────────────────────────────────
 export * from "./shell";
 
+// ── SSO Auth ───────────────────────────────────────────────
+export * from "./auth";
+
 // ── UI Components ─────────────────────────────────────────
 export * from "../components/ui/alert";
 export * from "../components/ui/avatar";

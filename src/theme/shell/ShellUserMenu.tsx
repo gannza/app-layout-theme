@@ -144,8 +144,10 @@ export const ShellUserMenu = () => {
                 {user.name}
               </span>
               <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">
-                Hi, {user.name.split(" ")[0] || "there"}!
+                Hi, {user.name || "there"}! 
               </span>
+                {user.email || "there"}!
+
               {user.extras}
             </div>
           </div>

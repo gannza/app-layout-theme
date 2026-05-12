@@ -1,4 +1,3 @@
-import * as React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import {
@@ -18,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { useShellConfig } from "./ShellContext";
 import { ShellLinkComponentProps, ShellMenuItem } from "./types";
 import { useMemo, useState, useEffect, useRef, ComponentType, forwardRef } from "react";
-import { ChevronDown, ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { ShellInstitutionSelector } from "./ShellInstitutionSelector";
 
 /* ── Default link ────────────────────────────────────────── */
@@ -201,7 +200,7 @@ const CollapsedSubmenuPopover = ({
 export const ShellSidebar = () => {
   const { menus, sidebarFooter, sidebarHeader, linkComponent, onMenuSelect, themeMode } =
     useShellConfig();
-  const { state, setOpenMobile, isMobile, toggleSidebar } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
   const LinkComponent = linkComponent ?? DefaultLink;
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({});

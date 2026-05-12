@@ -10,8 +10,18 @@ import { ShellProvider } from "./ShellContext";
 import { ShellSidebar } from "./ShellSidebar";
 import { ShellTopBar } from "./ShellTopBar";
 import { ShellPaginationFooter } from "./ShellPaginationFooter";
+import { AuthProvider } from "../auth/AuthProvider";
+import {
+  useAuthUser,
+  useAuthInstitutions,
+  useSelectedInstitutionId,
+  useSwitchInstitution,
+  useAuthAppLauncherItems,
+} from "../auth/hooks";
 
-export const AppShell = ({
+// ── Core shell (no auth awareness) ───────────────────────────────────────────
+
+function AppShellCore({
   children,
   className,
   pagination,
@@ -19,8 +29,18 @@ export const AppShell = ({
   footerContent,
   showFooter = true,
   theme,
+  // auth-derived overrides (injected by AppShellWithAuth)
+  user: userProp,
+  institutions: institutionsProp,
+  selectedInstitutionId: selectedIdProp,
+  onInstitutionChange: onInstitutionChangeProp,
   ...config
-}: AppShellProps) => {
+}: Omit<AppShellProps, "ssoBaseUrl" | "serviceName" | "signingSecret" | "clientId" | "encryptionEnabled"> & {
+  user?: AppShellProps["user"];
+  institutions?: AppShellProps["institutions"];
+  selectedInstitutionId?: AppShellProps["selectedInstitutionId"];
+  onInstitutionChange?: AppShellProps["onInstitutionChange"];
+}) {
   const [themeMode, setThemeMode] = useState<ShellThemeMode>(
     theme?.initialMode ?? "light"
   );
@@ -63,6 +83,10 @@ export const AppShell = ({
   const providerValue = useMemo(
     () => ({
       ...config,
+      user: userProp,
+      institutions: institutionsProp,
+      selectedInstitutionId: selectedIdProp,
+      onInstitutionChange: onInstitutionChangeProp,
       footer,
       footerContent,
       showFooter,
@@ -74,6 +98,10 @@ export const AppShell = ({
     }),
     [
       config,
+      userProp,
+      institutionsProp,
+      selectedIdProp,
+      onInstitutionChangeProp,
       footer,
       footerContent,
       showFooter,
@@ -164,4 +192,68 @@ export const AppShell = ({
       </SidebarProvider>
     </ShellProvider>
   );
+}
+
+// ── Auth-aware wrapper (reads from AuthProvider context) ──────────────────────
+
+function AppShellWithAuth(props: AppShellProps) {
+  const authUser = useAuthUser();
+  const authInstitutions = useAuthInstitutions();
+  const authSelectedId = useSelectedInstitutionId();
+  const switchInstitution = useSwitchInstitution();
+  const authModules = useAuthAppLauncherItems();
+
+  return (
+    <AppShellCore
+      {...props}
+      // Auth-derived values take priority over manually provided props
+      user={authUser ?? props.user}
+      institutions={
+        authInstitutions.length > 0 ? authInstitutions : props.institutions
+      }
+      selectedInstitutionId={authSelectedId ?? props.selectedInstitutionId}
+      onInstitutionChange={(id) => {
+        switchInstitution(id);
+        props.onInstitutionChange?.(id);
+      }}
+      appLauncherItems={
+        authModules.length > 0 ? authModules : props.appLauncherItems
+      }
+    />
+  );
+}
+
+// ── Public export ─────────────────────────────────────────────────────────────
+
+export const AppShell = ({
+  ssoBaseUrl,
+  serviceName,
+  signingSecret,
+  clientId,
+  encryptionEnabled,
+  onAuthChange,
+  moduleIconBaseUrl,
+  ...rest
+}: AppShellProps) => {
+  if (ssoBaseUrl && serviceName) {
+    return (
+      <AuthProvider
+        ssoBaseUrl={ssoBaseUrl}
+        serviceName={serviceName}
+        signingSecret={signingSecret}
+        clientId={clientId}
+        encryptionEnabled={encryptionEnabled}
+        onAuthChange={onAuthChange}
+        moduleIconBaseUrl={moduleIconBaseUrl}
+      >
+        <AppShellWithAuth
+          ssoBaseUrl={ssoBaseUrl}
+          serviceName={serviceName}
+          {...rest}
+        />
+      </AuthProvider>
+    );
+  }
+
+  return <AppShellCore {...rest} />;
 };

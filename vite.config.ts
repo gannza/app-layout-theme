@@ -84,11 +84,15 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         "/api": {
-          target: "http://localhost:9090",
+          target: "http://sso.localtest.me:8000",
           changeOrigin: true,
           secure: false,
         },
       },
+
+      host: '0.0.0.0',
+      allowedHosts: ['frontend.localtest.me']
+
     },
     resolve: {
       alias: {
