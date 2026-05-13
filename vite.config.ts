@@ -1,6 +1,7 @@
 // vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import dts from "vite-plugin-dts";
 import path from "path";
 import { resolve } from "path";
 
@@ -8,7 +9,14 @@ export default defineConfig(({ mode }) => {
   // Library build mode
   if (mode === "library") {
     return {
-      plugins: [react()],
+      plugins: [
+        react(),
+        dts({
+          tsconfigPath: "./tsconfig.lib.json",
+          include: ["src/theme", "src/components/ui", "src/lib", "src/hooks"],
+          insertTypesEntry: true,
+        }),
+      ],
       build: {
         lib: {
           entry: resolve(__dirname, "src/theme/index.ts"),
