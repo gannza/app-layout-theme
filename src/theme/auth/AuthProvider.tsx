@@ -12,6 +12,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import type { SsoAuthApi } from './authApi';
 import { clearUser, setUser } from './authSlice';
+import { SplashScreen } from './SplashScreen';
 import { createAuthStore } from './store';
 import type { AuthChangePayload, AssignedEntitySector, SsoAuthConfig, VerifyMeResponse } from './types';
 import {
@@ -230,6 +231,15 @@ function AuthInit({ api, ssoBaseUrl, serviceName, moduleIconBaseUrl, onAuthChang
     data !== undefined &&
     data.selectedEntitySector === null &&
     sectors.length > 0;
+
+  // Show splash while verify-me is in flight
+  if (isLoading) {
+    return (
+      <AuthDataContext.Provider value={authData}>
+        <SplashScreen />
+      </AuthDataContext.Provider>
+    );
+  }
 
   return (
     <AuthDataContext.Provider value={authData}>

@@ -2083,18 +2083,6 @@ const DemoApp = () => {
     },
   ];
 
-  const appLauncherItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "#" },
-    {
-      id: "analytics",
-      label: "Analytics",
-      icon: BarChart,
-      description: "View analytics",
-      href: "#",
-      openInNewTab: true,
-    },
-    { id: "documents", label: "Documents", icon: FileText, href: "#" },
-  ];
 
   return (
     <AppShell
