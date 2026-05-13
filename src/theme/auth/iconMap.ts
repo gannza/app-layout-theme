@@ -1,7 +1,7 @@
-// Eagerly import every icon from the local assets folder.
+// Eagerly import module icons (excludes branding assets like main-logo.png).
 // Vite resolves these to hashed asset URLs at build time.
 const _icons = import.meta.glob(
-  '../../assets/icons/*.{png,svg,webp}',
+  ['../../assets/icons/*.{png,svg,webp}', '!../../assets/icons/main-logo.png'],
   { eager: true, query: '?url', import: 'default' },
 ) as Record<string, string>;
 

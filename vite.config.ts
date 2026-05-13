@@ -48,6 +48,8 @@ export default defineConfig(({ mode }) => {
             "react-day-picker",
             "tailwind-merge",
             "tailwindcss-animate",
+            "@reduxjs/toolkit",
+            "react-redux",
           ],
           output: {
             globals: {
@@ -61,6 +63,7 @@ export default defineConfig(({ mode }) => {
         emptyOutDir: true,
         cssCodeSplit: false,
         copyPublicDir: false,
+        minify: "esbuild",
       },
       css: {
         // Bundle CSS into a single file

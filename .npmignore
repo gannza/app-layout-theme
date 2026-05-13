@@ -64,3 +64,9 @@ favicon.ico
 .env.*.local
 *.pem
 
+.git
+.vscode
+*.log
+*.map
+dist/assets/videos
+dist-demo

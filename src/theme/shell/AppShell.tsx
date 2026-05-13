@@ -233,6 +233,7 @@ export const AppShell = ({
   encryptionEnabled,
   onAuthChange,
   moduleIconBaseUrl,
+  splashLogoUrl,
   ...rest
 }: AppShellProps) => {
   if (ssoBaseUrl && serviceName) {
@@ -245,6 +246,7 @@ export const AppShell = ({
         encryptionEnabled={encryptionEnabled}
         onAuthChange={onAuthChange}
         moduleIconBaseUrl={moduleIconBaseUrl}
+        splashLogoUrl={splashLogoUrl}
       >
         <AppShellWithAuth
           ssoBaseUrl={ssoBaseUrl}

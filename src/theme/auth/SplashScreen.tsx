@@ -1,6 +1,8 @@
-import MainLogo from '@/assets/icons/main-logo.png';
+interface SplashScreenProps {
+  logoUrl?: string;
+}
 
-export function SplashScreen() {
+export function SplashScreen({ logoUrl }: SplashScreenProps) {
   return (
     <div className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-white text-[#0f172a]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(72,116,255,0.18),_transparent_60%)]" />
@@ -9,9 +11,11 @@ export function SplashScreen() {
       <div className="absolute -left-16 bottom-0 h-64 w-64 rounded-full bg-[#f2f6ff] blur-3xl" />
 
       <div className="relative z-10 flex flex-col items-center gap-6 text-center">
-        <div className="flex justify-between gap-4">
-          <img src={MainLogo} alt="Logo" className="w-[350px]" />
-        </div>
+        {logoUrl && (
+          <div className="flex justify-between gap-4">
+            <img src={logoUrl} alt="Logo" className="w-[350px]" />
+          </div>
+        )}
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#b7c7ff] border-t-[#1138d8]" />
         <p className="text-lg font-semibold tracking-wide text-[#0f172a]">
           Secure workspace

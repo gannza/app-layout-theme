@@ -127,11 +127,12 @@ interface AuthInitProps {
   ssoBaseUrl: string;
   serviceName: string;
   moduleIconBaseUrl?: string;
+  splashLogoUrl?: string;
   onAuthChange?: (payload: AuthChangePayload) => void;
   children: ReactNode;
 }
 
-function AuthInit({ api, ssoBaseUrl, serviceName, moduleIconBaseUrl, onAuthChange, children }: AuthInitProps) {
+function AuthInit({ api, ssoBaseUrl, serviceName, moduleIconBaseUrl, splashLogoUrl, onAuthChange, children }: AuthInitProps) {
   const dispatch = useDispatch();
   const { data, isLoading, error } = api.useVerifyMeQuery();
   const [logoutMutation] = api.useLogoutMutation();
@@ -236,7 +237,7 @@ function AuthInit({ api, ssoBaseUrl, serviceName, moduleIconBaseUrl, onAuthChang
   if (isLoading) {
     return (
       <AuthDataContext.Provider value={authData}>
-        <SplashScreen />
+        <SplashScreen logoUrl={splashLogoUrl} />
       </AuthDataContext.Provider>
     );
   }
@@ -261,6 +262,7 @@ export type AuthProviderProps = SsoAuthConfig & {
   children: ReactNode;
   onAuthChange?: (payload: AuthChangePayload) => void;
   moduleIconBaseUrl?: string;
+  splashLogoUrl?: string;
 };
 
 export function AuthProvider({
@@ -271,6 +273,7 @@ export function AuthProvider({
   encryptionEnabled,
   onAuthChange,
   moduleIconBaseUrl,
+  splashLogoUrl,
   children,
 }: AuthProviderProps) {
   const resolvedSecret =
@@ -297,6 +300,7 @@ export function AuthProvider({
         ssoBaseUrl={ssoBaseUrl}
         serviceName={serviceName}
         moduleIconBaseUrl={moduleIconBaseUrl}
+        splashLogoUrl={splashLogoUrl}
         onAuthChange={onAuthChange}
       >
         {children}

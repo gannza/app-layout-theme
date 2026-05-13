@@ -151,5 +151,7 @@ export interface AppShellProps {
   clientId?: string;
   /** Enable pako decompression of SSO responses (falls back to VITE_API_ENCRYPTION_ENABLED) */
   encryptionEnabled?: boolean;
+  /** URL of the logo shown on the splash screen during SSO auth initialization */
+  splashLogoUrl?: string;
 }
 
