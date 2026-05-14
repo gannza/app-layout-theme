@@ -2086,7 +2086,7 @@ const DemoApp = () => {
 
   return (
     <AppShell
-      ssoBaseUrl="http://sso.localtest.me:8000/"
+      ssoBaseUrl={import.meta.env.VITE_IPPIS_SSO_BASE_URL}
       serviceName="UI Theme Demo"
       onAuthChange={(payload) => {
         // Consuming apps receive user + selected entity sector here
@@ -2098,8 +2098,8 @@ const DemoApp = () => {
         );
       }}
       menus={menus}
-      signingSecret="e4aeeb156971040e6c71a431cd5b53d13c8832e372c182a5306236635d56c7cb"
-      clientId="IPPIS_AUTH"
+      signingSecret={import.meta.env.VITE_IPPIS_SIGNING_SECRET}
+      clientId={import.meta.env.VITE_SSO_CLIENT_ID}
       encryptionEnabled={false}
       title="UI Theme — Component Docs"
       logo={
